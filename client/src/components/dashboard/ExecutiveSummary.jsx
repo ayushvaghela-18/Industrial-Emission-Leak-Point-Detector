@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFactory } from '../../context/FactoryContext';
 import { KPICard } from '../common/KPICard';
 import { Factory, TrendingDown, DollarSign, Award, Flame, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const ExecutiveSummary = () => {
-  const { activeFactory, setActiveTab } = useFactory();
+  const { activeFactory } = useFactory();
+  const navigate = useNavigate();
 
   if (!activeFactory) return null;
 
@@ -33,7 +35,7 @@ export const ExecutiveSummary = () => {
               <p className="font-bold text-white truncate max-w-[220px]">{topHotspot.title}</p>
             </div>
             <button
-              onClick={() => setActiveTab('hotspots')}
+              onClick={() => navigate('/hotspots')}
               className="ml-2 p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors"
               title="Inspect Hotspots"
             >

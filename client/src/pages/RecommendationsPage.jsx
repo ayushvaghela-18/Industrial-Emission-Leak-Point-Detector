@@ -38,3 +38,6 @@ export const RecommendationsPage = () => {
     </div>
   );
 };
+
+export default RecommendationsPage;
+

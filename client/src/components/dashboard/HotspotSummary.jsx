@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFactory } from '../../context/FactoryContext';
 import { SeverityBadge } from '../common/Badge';
 import { Flame, ArrowUpRight } from 'lucide-react';
 import { HotspotDetailModal } from '../hotspots/HotspotDetailModal';
 
 export const HotspotSummary = () => {
-  const { activeFactory, setActiveTab } = useFactory();
+  const { activeFactory } = useFactory();
+  const navigate = useNavigate();
   const [selectedHotspot, setSelectedHotspot] = useState(null);
 
   if (!activeFactory || !activeFactory.hotspots) return null;
@@ -25,7 +27,7 @@ export const HotspotSummary = () => {
             </div>
           </div>
           <button
-            onClick={() => setActiveTab('hotspots')}
+            onClick={() => navigate('/hotspots')}
             className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
           >
             View All ({activeFactory.hotspots.length}) <ArrowUpRight className="w-3.5 h-3.5" />

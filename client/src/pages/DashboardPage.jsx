@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ExecutiveSummary } from '../components/dashboard/ExecutiveSummary';
 import { EmissionBreakdownChart } from '../components/dashboard/EmissionBreakdownChart';
 import { HotspotSummary } from '../components/dashboard/HotspotSummary';
@@ -7,7 +8,8 @@ import { useFactory } from '../context/FactoryContext';
 import { ArrowUpRight } from 'lucide-react';
 
 export const DashboardPage = () => {
-  const { activeFactory, setActiveTab } = useFactory();
+  const { activeFactory } = useFactory();
+  const navigate = useNavigate();
 
   const topRec = activeFactory?.recommendations?.[0];
 
@@ -29,7 +31,7 @@ export const DashboardPage = () => {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Top Priority Intervention</span>
                 <button
-                  onClick={() => setActiveTab('recommendations')}
+                  onClick={() => navigate('/recommendations')}
                   className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
                 >
                   View All <ArrowUpRight className="w-3.5 h-3.5" />
@@ -51,3 +53,5 @@ export const DashboardPage = () => {
     </div>
   );
 };
+
+export default DashboardPage;

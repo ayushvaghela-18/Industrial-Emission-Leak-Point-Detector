@@ -36,3 +36,6 @@ export const HotspotsPage = () => {
     </div>
   );
 };
+
+export default HotspotsPage;
+

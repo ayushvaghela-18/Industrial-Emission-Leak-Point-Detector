@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFactory } from '../../context/FactoryContext';
 import { Award, Lightbulb } from 'lucide-react';
 
 export const SustainabilityScoreCard = () => {
-  const { activeFactory, setActiveTab } = useFactory();
+  const { activeFactory } = useFactory();
+  const navigate = useNavigate();
 
   if (!activeFactory) return null;
 
@@ -50,7 +52,7 @@ export const SustainabilityScoreCard = () => {
       </div>
 
       <button
-        onClick={() => setActiveTab('recommendations')}
+        onClick={() => navigate('/recommendations')}
         className="w-full py-3 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all"
       >
         Explore Circular Interventions

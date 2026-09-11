@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useFactory } from '../../context/FactoryContext';
 import { 
   LayoutDashboard, 
@@ -11,13 +12,16 @@ import {
 } from 'lucide-react';
 
 export const Sidebar = () => {
-  const { activeTab, setActiveTab, activeFactory, setCopilotOpen } = useFactory();
+  const { activeFactory, setCopilotOpen } = useFactory();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
-    { id: 'dashboard', label: 'Executive Dashboard', icon: LayoutDashboard, badge: null },
-    { id: 'input', label: 'Factory Data Input', icon: FileSpreadsheet, badge: null },
+    { id: 'dashboard', path: '/dashboard', label: 'Executive Dashboard', icon: LayoutDashboard, badge: null },
+    { id: 'input', path: '/input', label: 'Factory Data Input', icon: FileSpreadsheet, badge: null },
     { 
       id: 'hotspots', 
+      path: '/hotspots',
       label: 'Emission Hotspots', 
       icon: Flame, 
       badge: activeFactory?.hotspots?.length ? `${activeFactory.hotspots.length} LEAKS` : null,
@@ -25,12 +29,13 @@ export const Sidebar = () => {
     },
     { 
       id: 'recommendations', 
+      path: '/recommendations',
       label: 'Circular Actions', 
       icon: Recycle, 
       badge: activeFactory?.recommendations?.length ? `${activeFactory.recommendations.length} SOLUTIONS` : null,
       badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
     },
-    { id: 'simulator', label: 'What-If Simulator', icon: SlidersHorizontal, badge: 'INTERACTIVE', badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/30' },
+    { id: 'simulator', path: '/simulator', label: 'What-If Simulator', icon: SlidersHorizontal, badge: 'INTERACTIVE', badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/30' },
   ];
 
   return (
@@ -55,11 +60,11 @@ export const Sidebar = () => {
           <p className="px-3 text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Core Functional Areas</p>
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+            const isActive = location.pathname === item.path;
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => navigate(item.path)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-semibold transition-colors ${
                   isActive 
                     ? 'bg-emerald-500/10 text-emerald-400 border-r-4 border-emerald-500 rounded-l-lg' 

@@ -8,3 +8,5 @@ export const DataInputPage = () => {
     </div>
   );
 };
+
+export default DataInputPage;

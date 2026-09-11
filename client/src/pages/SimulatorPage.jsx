@@ -8,3 +8,5 @@ export const SimulatorPage = () => {
     </div>
   );
 };
+
+export default SimulatorPage;
