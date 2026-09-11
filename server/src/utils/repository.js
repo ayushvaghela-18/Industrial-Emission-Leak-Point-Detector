@@ -20,7 +20,8 @@ const isMongoActive = () => mongoose.connection.readyState === 1;
 export const FactoryRepository = {
   async create(data) {
     if (isMongoActive()) {
-      return await Factory.create(data);
+      const doc = await Factory.create(data);
+      return doc.toObject ? doc.toObject() : doc;
     }
     const id = generateId();
     const doc = {
@@ -36,7 +37,7 @@ export const FactoryRepository = {
 
   async find(filter = {}) {
     if (isMongoActive()) {
-      return await Factory.find(filter).sort({ createdAt: -1 });
+      return await Factory.find(filter).sort({ createdAt: -1 }).lean();
     }
     const list = Array.from(memoryStore.factories.values());
     if (Object.keys(filter).length === 0) return list.reverse();
@@ -47,14 +48,14 @@ export const FactoryRepository = {
 
   async findById(id) {
     if (isMongoActive()) {
-      return await Factory.findById(id);
+      return await Factory.findById(id).lean();
     }
     return memoryStore.factories.get(id.toString()) || null;
   },
 
   async findByIdAndUpdate(id, update, options = { new: true }) {
     if (isMongoActive()) {
-      return await Factory.findByIdAndUpdate(id, update, options);
+      return await Factory.findByIdAndUpdate(id, update, { ...options, lean: true });
     }
     const existing = memoryStore.factories.get(id.toString());
     if (!existing) return null;
@@ -82,7 +83,8 @@ export const FactoryRepository = {
 export const ProcessDataRepository = {
   async create(data) {
     if (isMongoActive()) {
-      return await FactoryProcessData.create(data);
+      const doc = await FactoryProcessData.create(data);
+      return doc.toObject ? doc.toObject() : doc;
     }
     const id = generateId();
     const doc = {
@@ -98,7 +100,7 @@ export const ProcessDataRepository = {
 
   async findByFactoryId(factoryId) {
     if (isMongoActive()) {
-      return await FactoryProcessData.find({ factoryId }).sort({ createdAt: -1 });
+      return await FactoryProcessData.find({ factoryId }).sort({ createdAt: -1 }).lean();
     }
     const list = Array.from(memoryStore.processData.values()).filter(
       (p) => p.factoryId.toString() === factoryId.toString()
@@ -108,7 +110,7 @@ export const ProcessDataRepository = {
 
   async findLatestByFactoryId(factoryId) {
     if (isMongoActive()) {
-      return await FactoryProcessData.findOne({ factoryId }).sort({ createdAt: -1 });
+      return await FactoryProcessData.findOne({ factoryId }).sort({ createdAt: -1 }).lean();
     }
     const list = await this.findByFactoryId(factoryId);
     return list.length > 0 ? list[0] : null;
@@ -127,7 +129,8 @@ export const ProcessDataRepository = {
 export const EmissionAnalysisRepository = {
   async create(data) {
     if (isMongoActive()) {
-      return await EmissionAnalysis.create(data);
+      const doc = await EmissionAnalysis.create(data);
+      return doc.toObject ? doc.toObject() : doc;
     }
     const id = generateId();
     const doc = {
@@ -144,7 +147,7 @@ export const EmissionAnalysisRepository = {
 
   async findByFactoryId(factoryId) {
     if (isMongoActive()) {
-      return await EmissionAnalysis.find({ factoryId }).sort({ createdAt: -1 });
+      return await EmissionAnalysis.find({ factoryId }).sort({ createdAt: -1 }).lean();
     }
     const list = Array.from(memoryStore.emissionAnalyses.values()).filter(
       (a) => a.factoryId.toString() === factoryId.toString()
@@ -154,7 +157,7 @@ export const EmissionAnalysisRepository = {
 
   async findLatestByFactoryId(factoryId) {
     if (isMongoActive()) {
-      return await EmissionAnalysis.findOne({ factoryId }).sort({ createdAt: -1 });
+      return await EmissionAnalysis.findOne({ factoryId }).sort({ createdAt: -1 }).lean();
     }
     const list = await this.findByFactoryId(factoryId);
     return list.length > 0 ? list[0] : null;
@@ -173,7 +176,8 @@ export const EmissionAnalysisRepository = {
 export const SimulationRepository = {
   async create(data) {
     if (isMongoActive()) {
-      return await SimulationResult.create(data);
+      const doc = await SimulationResult.create(data);
+      return doc.toObject ? doc.toObject() : doc;
     }
     const id = generateId();
     const doc = {

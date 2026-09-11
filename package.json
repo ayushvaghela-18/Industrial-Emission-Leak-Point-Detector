@@ -23,7 +23,7 @@
   ],
   "author": "EcoForge AI Team",
   "license": "MIT",
-  "dependencies": {
-    "react-router-dom": "^7.18.3"
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }
