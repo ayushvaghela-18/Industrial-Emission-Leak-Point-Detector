@@ -22,5 +22,8 @@
     "monorepo"
   ],
   "author": "EcoForge AI Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "react-router-dom": "^7.18.3"
+  }
 }
