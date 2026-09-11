@@ -6,17 +6,19 @@ import emissionRoutes from './routes/emissionRoutes.js';
 import simulationRoutes from './routes/simulationRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 
-/**
- * Express Application Configuration
- * Primary Ownership: Member 2 (Backend & Emissions)
- */
+import recommendationRoutes from './routes/recommendationRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+
 const app = express();
 
-// Security and utility middlewares
 app.use(cors());
 app.use(express.json());
 
-// Health & Status Check Endpoint
+// AI & Recommendation Routes
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/ai', aiRoutes);
+
+// Health Check
 app.get('/api/health', (req, res) => {
   const dbStatus = getDbStatus();
   res.status(200).json({
@@ -27,12 +29,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Mount Domain Routes
+// Existing Domain Routes
 app.use('/api/factories', factoryRoutes);
 app.use('/api/emissions', emissionRoutes);
 app.use('/api/simulation', simulationRoutes);
 
-// Global Error Handling Middleware
+// Global Error Handling
 app.use(errorHandler);
 
 export default app;
