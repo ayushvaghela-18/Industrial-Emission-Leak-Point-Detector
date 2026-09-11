@@ -8,7 +8,7 @@ import { HOTSPOT_SEVERITY, SCOPES } from '../src/constants/index.js';
 import app from '../src/app.js';
 
 // HTTP Test Client Helper
-const request = (method, path, body = null) => {
+const request = (method, path, body = null, extraHeaders = {}) => {
   return new Promise((resolve, reject) => {
     const server = app.listen(0, () => {
       const port = server.address().port;
@@ -17,7 +17,10 @@ const request = (method, path, body = null) => {
         port,
         path,
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...extraHeaders,
+        },
       };
 
       const req = http.request(options, (res) => {
@@ -25,9 +28,16 @@ const request = (method, path, body = null) => {
         res.on('data', (chunk) => (raw += chunk));
         res.on('end', () => {
           server.close();
+          let parsed = null;
+          try {
+            parsed = raw ? JSON.parse(raw) : null;
+          } catch {
+            parsed = raw;
+          }
           resolve({
             statusCode: res.statusCode,
-            body: raw ? JSON.parse(raw) : null,
+            headers: res.headers,
+            body: parsed,
           });
         });
       });
@@ -37,7 +47,13 @@ const request = (method, path, body = null) => {
         reject(err);
       });
 
-      if (body) req.write(JSON.stringify(body));
+      if (body !== null) {
+        if (typeof body === 'string') {
+          req.write(body);
+        } else {
+          req.write(JSON.stringify(body));
+        }
+      }
       req.end();
     });
   });
@@ -319,7 +335,7 @@ test('=== 4. End-to-End REST API Integration & Contracts ===', async (t) => {
   });
 });
 
-test('=== 5. Input Validation & Error Handling Guardrails ===', async (t) => {
+test('=== 5. Input Validation, CORS & Error Handling Guardrails ===', async (t) => {
   await t.test('POST /api/factories rejects empty name', async () => {
     const res = await request('POST', '/api/factories', { name: '  ', industryType: 'Textile' });
     assert.equal(res.statusCode, 400);
@@ -357,6 +373,13 @@ test('=== 5. Input Validation & Error Handling Guardrails ===', async (t) => {
     assert.equal(res.body.success, false);
   });
 
+  await t.test('POST /api/emissions/analyze rejects missing process data when no factoryId provided', async () => {
+    const res = await request('POST', '/api/emissions/analyze', {});
+    assert.equal(res.statusCode, 400);
+    assert.equal(res.body.success, false);
+    assert.equal(res.body.errorCode, 'MISSING_PROCESS_DATA');
+  });
+
   await t.test('POST /api/simulation rejects negative percentage changes', async () => {
     const payload = {
       scenarioChanges: { renewableEnergyPercentage: -10 },
@@ -385,5 +408,30 @@ test('=== 5. Input Validation & Error Handling Guardrails ===', async (t) => {
     assert.equal(res.statusCode, 400);
     assert.equal(res.body.success, false);
     assert.equal(res.body.errorCode, 'MISSING_BASELINE_DATA');
+  });
+
+  await t.test('handles CORS preflight OPTIONS request from frontend dev server', async () => {
+    const res = await request('OPTIONS', '/api/health', null, {
+      Origin: 'http://localhost:3000',
+      'Access-Control-Request-Method': 'GET',
+    });
+    assert.equal(res.statusCode, 204);
+    assert.equal(res.headers['access-control-allow-origin'], 'http://localhost:3000');
+  });
+
+  await t.test('handles CORS preflight OPTIONS request from alternative port 3001', async () => {
+    const res = await request('OPTIONS', '/api/factories', null, {
+      Origin: 'http://localhost:3001',
+      'Access-Control-Request-Method': 'POST',
+    });
+    assert.equal(res.statusCode, 204);
+    assert.equal(res.headers['access-control-allow-origin'], 'http://localhost:3001');
+  });
+
+  await t.test('handles malformed JSON request body with 400 MALFORMED_JSON', async () => {
+    const res = await request('POST', '/api/factories', '{ malformed: json, missing quotes }');
+    assert.equal(res.statusCode, 400);
+    assert.equal(res.body.success, false);
+    assert.equal(res.body.errorCode, 'MALFORMED_JSON');
   });
 });
