@@ -19,11 +19,11 @@ export const SustainabilityScoreCard = () => {
   const grade = getScoreGrade(score);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 transition-all hover:shadow-md p-5 flex flex-col justify-between space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg flex flex-col justify-between space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Award className="w-5 h-5 text-[#0B3D2E]" />
-          <h3 className="text-sm font-bold text-[#0F172A]">Sustainability Health Score</h3>
+          <Award className="w-5 h-5 text-emerald-600" />
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">Sustainability Health Score</h3>
         </div>
         <span className={`text-xs font-bold ${grade.color}`}>{grade.label}</span>
       </div>
@@ -31,8 +31,8 @@ export const SustainabilityScoreCard = () => {
       {/* Meter Bar */}
       <div className="space-y-2">
         <div className="flex justify-between items-baseline">
-          <span className="text-3xl font-black text-[#0F172A]">{score} <span className="text-sm font-normal text-[#64748B]">/ 100</span></span>
-          <span className="text-xs text-[#64748B]">Benchmark Avg: 58</span>
+          <span className="text-4xl font-extrabold text-slate-900 tracking-tight">{score} <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">/ 100</span></span>
+          <span className="text-xs font-medium text-slate-500">Benchmark Avg: 58</span>
         </div>
         <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
           <div 
@@ -42,7 +42,7 @@ export const SustainabilityScoreCard = () => {
         </div>
       </div>
 
-      <div className="p-3 bg-emerald-50/60 border border-emerald-100 rounded-lg flex items-start space-x-2.5 text-xs text-[#0B3D2E]">
+      <div className="p-3.5 bg-emerald-50/60 border border-emerald-100 rounded-xl flex items-start space-x-2.5 text-xs text-emerald-950">
         <Lightbulb className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
         <p>
           Implementing top circular recommendations will boost score by <span className="font-bold text-emerald-700">+28 points</span>.
@@ -51,7 +51,7 @@ export const SustainabilityScoreCard = () => {
 
       <button
         onClick={() => setActiveTab('recommendations')}
-        className="w-full py-2 bg-[#0B3D2E] hover:bg-[#082e22] text-white rounded-lg text-xs font-semibold transition-colors"
+        className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-md transition-all"
       >
         Explore Circular Interventions
       </button>

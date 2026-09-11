@@ -29,7 +29,6 @@ export const CopilotDrawer = () => {
     const q = (questionText || input).trim();
     if (!q || loading) return;
 
-    // Add user message
     const userMsg = {
       sender: 'user',
       text: q,
@@ -74,19 +73,19 @@ export const CopilotDrawer = () => {
     <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[440px] bg-slate-900 text-white shadow-2xl flex flex-col justify-between border-l border-slate-800 animate-in slide-in-from-right duration-300">
       
       {/* Drawer Header */}
-      <div className="p-4 bg-forest-900 border-b border-forest-800 flex items-center justify-between">
+      <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          <div className="p-2 bg-emerald-500/20 rounded-lg border border-emerald-400/30">
+          <div className="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/30">
             <Sparkles className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="text-sm font-bold text-white">AI Sustainability Copilot</h3>
-              <span className="bg-emerald-500/20 text-emerald-300 text-[9px] px-1.5 py-0.5 rounded font-mono border border-emerald-500/30">
+              <h3 className="text-sm font-bold text-white tracking-tight">AI Sustainability Copilot</h3>
+              <span className="bg-emerald-500/20 text-emerald-300 text-[9px] px-2 py-0.5 rounded-full font-mono border border-emerald-500/30">
                 Grounded
               </span>
             </div>
-            <p className="text-[11px] text-slate-300 flex items-center gap-1">
+            <p className="text-[11px] text-slate-400 flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-emerald-400" />
               <span>Bound to {activeFactory?.name || 'Active Plant'} Telemetry</span>
             </p>
@@ -95,7 +94,7 @@ export const CopilotDrawer = () => {
 
         <button
           onClick={() => setCopilotOpen(false)}
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-forest-800 rounded-lg transition-colors"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -103,13 +102,13 @@ export const CopilotDrawer = () => {
 
       {/* Suggested Questions Strip */}
       <div className="p-3 bg-slate-950 border-b border-slate-800 space-y-1.5">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Suggested Questions</span>
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Suggested Questions</span>
         <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           {MOCK_AI_SUGGESTED_QUESTIONS.slice(0, 3).map((q, idx) => (
             <button
               key={idx}
               onClick={() => handleSend(q)}
-              className="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-md border border-slate-700 whitespace-nowrap flex-shrink-0 transition-colors"
+              className="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1 rounded-lg border border-slate-700 whitespace-nowrap flex-shrink-0 transition-colors"
             >
               {q}
             </button>
@@ -128,14 +127,14 @@ export const CopilotDrawer = () => {
           >
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
-                msg.sender === 'user' ? 'bg-emerald-600 text-white' : 'bg-forest-900 text-emerald-300 border border-forest-700'
+                msg.sender === 'user' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-emerald-400 border border-slate-700'
               }`}
             >
               {msg.sender === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
             </div>
 
             <div
-              className={`max-w-[82%] p-3 rounded-xl text-xs leading-relaxed ${
+              className={`max-w-[82%] p-3.5 rounded-2xl text-xs leading-relaxed ${
                 msg.sender === 'user'
                   ? 'bg-emerald-600 text-white rounded-tr-none'
                   : 'bg-slate-800 text-slate-100 border border-slate-700/80 rounded-tl-none shadow-md'
@@ -159,7 +158,7 @@ export const CopilotDrawer = () => {
       </div>
 
       {/* Input Prompt Box */}
-      <div className="p-3 bg-slate-950 border-t border-slate-800">
+      <div className="p-3.5 bg-slate-950 border-t border-slate-800">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -172,12 +171,12 @@ export const CopilotDrawer = () => {
             placeholder="Ask about emissions, ROI, payback, or circular steps..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-slate-900 text-white text-xs px-3.5 py-2.5 rounded-lg border border-slate-800 focus:outline-none focus:border-emerald-500"
+            className="flex-1 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl border border-slate-800 focus:outline-none focus:border-emerald-500 transition-all"
           />
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="p-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-lg transition-all"
+            className="p-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl transition-all shadow-md flex-shrink-0"
           >
             <Send className="w-4 h-4" />
           </button>

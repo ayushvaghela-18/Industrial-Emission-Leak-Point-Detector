@@ -12,13 +12,13 @@ export const RecommendationsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-forest-900 text-white rounded-xl p-5 border border-forest-800 shadow-md flex items-center justify-between">
+      <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-2">
             <Recycle className="w-6 h-6 text-emerald-400" />
-            <h2 className="text-lg font-bold">Circular Economy & Decarbonization Action Plan</h2>
+            <h2 className="text-lg font-bold tracking-tight text-white">Circular Economy & Decarbonization Action Plan</h2>
           </div>
-          <p className="text-xs text-slate-300 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Prioritized circular solutions tailored to reduce CO2 emissions and maximize financial payback for <span className="font-semibold text-white">{activeFactory.name}</span>.
           </p>
         </div>

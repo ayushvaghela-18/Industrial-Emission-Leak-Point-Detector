@@ -12,12 +12,12 @@ export const HotspotsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-forest-900 text-white rounded-xl p-5 border border-forest-800 shadow-md">
+      <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md">
         <div className="flex items-center space-x-2">
           <Flame className="w-6 h-6 text-red-400 animate-pulse" />
-          <h2 className="text-lg font-bold">Industrial Emission Leak Point Diagnostics</h2>
+          <h2 className="text-lg font-bold tracking-tight text-white">Industrial Emission Leak Point Diagnostics</h2>
         </div>
-        <p className="text-xs text-slate-300 mt-1">
+        <p className="text-xs text-slate-400 mt-1">
           Detailed breakdown of process inefficiencies, high-carbon fuel burn, and material extraction hotspots for <span className="font-semibold text-white">{activeFactory.name}</span>.
         </p>
       </div>

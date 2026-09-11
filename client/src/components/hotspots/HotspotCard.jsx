@@ -4,44 +4,44 @@ import { Flame, ArrowRight, DollarSign, TrendingDown, Info } from 'lucide-react'
 
 export const HotspotCard = ({ hotspot, onSelect }) => {
   return (
-    <div className="bg-surface-card border border-surface-border rounded-xl p-5 shadow-card hover:shadow-card-hover transition-all duration-200 flex flex-col justify-between space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg flex flex-col justify-between space-y-4">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <SeverityBadge severity={hotspot.severity} />
-          <span className="text-xs font-extrabold text-forest-900 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+          <span className="text-xs font-bold text-slate-700 bg-slate-100 ring-1 ring-slate-200 px-3 py-1 rounded-full">
             {hotspot.contributionPct}% Contribution
           </span>
         </div>
 
         <div>
-          <h3 className="text-base font-bold text-slate-primary">{hotspot.title}</h3>
-          <p className="text-xs text-slate-secondary mt-1">{hotspot.category}</p>
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">{hotspot.title}</h3>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mt-1">{hotspot.category}</p>
         </div>
 
-        <div className="p-3 bg-slate-50 rounded-lg text-xs space-y-1">
-          <p className="font-semibold text-slate-primary flex items-center gap-1">
-            <Info className="w-3.5 h-3.5 text-forest-900" /> Root Cause:
+        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60 text-xs space-y-1">
+          <p className="font-semibold text-slate-900 flex items-center gap-1">
+            <Info className="w-3.5 h-3.5 text-emerald-600" /> Root Cause:
           </p>
-          <p className="text-slate-secondary text-[11px] leading-relaxed">{hotspot.rootCause}</p>
+          <p className="text-slate-600 text-[11px] leading-relaxed">{hotspot.rootCause}</p>
         </div>
       </div>
 
-      <div className="pt-3 border-t border-surface-border space-y-3">
+      <div className="pt-3 border-t border-slate-200/70 space-y-3">
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="p-2 bg-red-50 rounded-md border border-red-100">
-            <span className="text-[10px] text-slate-secondary block">Annual Emissions</span>
-            <span className="font-bold text-critical text-sm">{hotspot.annualEmissions?.toLocaleString()} tCO2e</span>
+          <div className="p-3 bg-red-50/60 rounded-xl border border-red-100">
+            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider block">Annual Emissions</span>
+            <span className="font-extrabold text-red-700 text-sm">{hotspot.annualEmissions?.toLocaleString()} tCO2e</span>
           </div>
 
-          <div className="p-2 bg-emerald-50 rounded-md border border-emerald-100">
-            <span className="text-[10px] text-slate-secondary block">Potential CO2 Savings</span>
-            <span className="font-bold text-emerald-700 text-sm">-{hotspot.potentialCo2Savings?.toLocaleString()} tCO2e</span>
+          <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100">
+            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider block">Potential CO2 Savings</span>
+            <span className="font-extrabold text-emerald-700 text-sm">-{hotspot.potentialCo2Savings?.toLocaleString()} tCO2e</span>
           </div>
         </div>
 
         <button
           onClick={() => onSelect(hotspot)}
-          className="w-full py-2 bg-forest-900 hover:bg-forest-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
+          className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-md transition-all"
         >
           <span>Inspect Leak Point Details</span>
           <ArrowRight className="w-4 h-4" />

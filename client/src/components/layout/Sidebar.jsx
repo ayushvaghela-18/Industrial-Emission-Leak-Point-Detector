@@ -34,17 +34,17 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 bg-forest-900 border-r border-forest-800 text-white min-h-[calc(100vh-4rem)] flex flex-col justify-between p-4 flex-shrink-0">
+    <aside className="w-64 bg-slate-900 border-r border-slate-800 text-slate-400 min-h-[calc(100vh-4rem)] flex flex-col justify-between p-4 flex-shrink-0">
       <div className="space-y-6">
         
         {/* Facility Info Card */}
         {activeFactory && (
-          <div className="bg-forest-800/60 border border-forest-700/70 rounded-xl p-3.5 space-y-1.5">
+          <div className="bg-slate-800/60 border border-slate-700/70 rounded-xl p-3.5 space-y-1.5">
             <span className="text-[10px] font-bold tracking-widest text-emerald-400 uppercase">Active Plant Profile</span>
             <h4 className="text-sm font-bold text-white truncate">{activeFactory.name}</h4>
-            <p className="text-xs text-slate-300 truncate">{activeFactory.industry}</p>
-            <div className="pt-2 flex items-center justify-between text-[11px] border-t border-forest-700/50">
-              <span className="text-slate-300">Sustainability Score</span>
+            <p className="text-xs text-slate-400 truncate">{activeFactory.industry}</p>
+            <div className="pt-2 flex items-center justify-between text-[11px] border-t border-slate-700/50">
+              <span className="text-slate-400">Sustainability Score</span>
               <span className="font-bold text-emerald-400">{activeFactory.metrics?.sustainabilityScore || 50}/100</span>
             </div>
           </div>
@@ -52,7 +52,7 @@ export const Sidebar = () => {
 
         {/* Main Navigation Links */}
         <nav className="space-y-1">
-          <p className="px-3 text-[10px] font-bold tracking-widest text-slate-300 uppercase mb-2">Core Functional Areas</p>
+          <p className="px-3 text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Core Functional Areas</p>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -60,14 +60,14 @@ export const Sidebar = () => {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 text-xs font-semibold transition-colors ${
                   isActive 
-                    ? 'bg-emerald-600 text-white shadow-md' 
-                    : 'text-slate-200 hover:bg-forest-800 hover:text-white'
+                    ? 'bg-emerald-500/10 text-emerald-400 border-r-4 border-emerald-500 rounded-l-lg' 
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors rounded-lg'
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-emerald-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge ? (
@@ -75,7 +75,7 @@ export const Sidebar = () => {
                     {item.badge}
                   </span>
                 ) : (
-                  isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-200" />
+                  isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-400" />
                 )}
               </button>
             );
@@ -83,10 +83,10 @@ export const Sidebar = () => {
         </nav>
 
         {/* Quick Launch Copilot */}
-        <div className="pt-4 border-t border-forest-800">
+        <div className="pt-4 border-t border-slate-800">
           <button
             onClick={() => setCopilotOpen(true)}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold bg-forest-800/80 hover:bg-forest-800 text-slate-200 hover:text-white border border-forest-700 transition-all"
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700/80 transition-all"
           >
             <div className="flex items-center space-x-3">
               <Bot className="w-4 h-4 text-emerald-400" />
@@ -99,8 +99,8 @@ export const Sidebar = () => {
       </div>
 
       {/* Footer Info */}
-      <div className="text-[10px] text-slate-300 border-t border-forest-800 pt-3">
-        <p className="font-semibold text-slate-300">EcoForge AI System v1.0</p>
+      <div className="text-[10px] text-slate-500 border-t border-slate-800 pt-3">
+        <p className="font-semibold text-slate-400">EcoForge AI System v1.0</p>
         <p>Circular Carbon Ecosystem Prototype</p>
       </div>
     </aside>

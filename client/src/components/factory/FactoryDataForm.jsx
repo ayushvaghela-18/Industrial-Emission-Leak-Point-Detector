@@ -44,35 +44,38 @@ export const FactoryDataForm = () => {
     setTimeout(() => setSuccessMsg(''), 4000);
   };
 
+  const inputStyle = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all text-sm";
+  const labelStyle = "block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1";
+
   return (
-    <div className="bg-surface-card border border-surface-border rounded-xl shadow-card overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
       
       {/* Header */}
-      <div className="p-5 border-b border-surface-border bg-forest-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 border-b border-slate-800 bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold flex items-center gap-2">
+          <h2 className="text-lg font-bold tracking-tight flex items-center gap-2 text-white">
             <FactoryIcon className="w-5 h-5 text-emerald-400" />
             Operational Telemetry Input
           </h2>
-          <p className="text-xs text-slate-300">Enter process parameters to calculate deterministic Scope 1, 2, and 3 emissions.</p>
+          <p className="text-xs text-slate-400 mt-1">Enter process parameters to calculate deterministic Scope 1, 2, and 3 emissions.</p>
         </div>
 
         {successMsg && (
-          <div className="px-3 py-1.5 bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-semibold rounded-lg">
+          <div className="px-3.5 py-2 bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-semibold rounded-xl">
             {successMsg}
           </div>
         )}
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-surface-border bg-slate-50 px-4 pt-2 overflow-x-auto">
+      <div className="flex border-b border-slate-200 bg-slate-50 px-4 pt-2 overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab('energy')}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'energy'
-              ? 'border-emerald-600 text-forest-900 bg-white rounded-t-lg'
-              : 'border-transparent text-slate-secondary hover:text-slate-primary'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Zap className="w-4 h-4 text-amber-500" />
@@ -82,10 +85,10 @@ export const FactoryDataForm = () => {
         <button
           type="button"
           onClick={() => setActiveTab('materials')}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'materials'
-              ? 'border-emerald-600 text-forest-900 bg-white rounded-t-lg'
-              : 'border-transparent text-slate-secondary hover:text-slate-primary'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Flame className="w-4 h-4 text-emerald-600" />
@@ -95,10 +98,10 @@ export const FactoryDataForm = () => {
         <button
           type="button"
           onClick={() => setActiveTab('waste')}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'waste'
-              ? 'border-emerald-600 text-forest-900 bg-white rounded-t-lg'
-              : 'border-transparent text-slate-secondary hover:text-slate-primary'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Trash2 className="w-4 h-4 text-teal-600" />
@@ -108,10 +111,10 @@ export const FactoryDataForm = () => {
         <button
           type="button"
           onClick={() => setActiveTab('transport')}
-          className={`flex items-center space-x-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'transport'
-              ? 'border-emerald-600 text-forest-900 bg-white rounded-t-lg'
-              : 'border-transparent text-slate-secondary hover:text-slate-primary'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Truck className="w-4 h-4 text-blue-600" />
@@ -126,19 +129,19 @@ export const FactoryDataForm = () => {
         {activeTab === 'energy' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Annual Electricity Consumption (kWh/yr)</label>
+              <label className={labelStyle}>Annual Electricity Consumption (kWh/yr)</label>
               <input
                 type="number"
                 name="electricityKw"
                 value={formData.electricityKw}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
-              <span className="text-[11px] text-slate-secondary">Scope 2 indirect electricity grid draw</span>
+              <span className="text-[11px] font-medium text-slate-500">Scope 2 indirect electricity grid draw</span>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Renewable Power Mix Share (%)</label>
+              <label className={labelStyle}>Renewable Power Mix Share (%)</label>
               <input
                 type="number"
                 name="renewablePct"
@@ -146,33 +149,33 @@ export const FactoryDataForm = () => {
                 max="100"
                 value={formData.renewablePct}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
-              <span className="text-[11px] text-slate-secondary">Solar, wind, or green PPA percentage</span>
+              <span className="text-[11px] font-medium text-slate-500">Solar, wind, or green PPA percentage</span>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Annual Diesel Fuel Usage (Liters/yr)</label>
+              <label className={labelStyle}>Annual Diesel Fuel Usage (Liters/yr)</label>
               <input
                 type="number"
                 name="dieselLiters"
                 value={formData.dieselLiters}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
-              <span className="text-[11px] text-slate-secondary">Scope 1 furnace & stationary combustion</span>
+              <span className="text-[11px] font-medium text-slate-500">Scope 1 furnace & stationary combustion</span>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Natural Gas Consumption (m³/yr)</label>
+              <label className={labelStyle}>Natural Gas Consumption (m³/yr)</label>
               <input
                 type="number"
                 name="naturalGasM3"
                 value={formData.naturalGasM3}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
-              <span className="text-[11px] text-slate-secondary">Direct process boiler thermal combustion</span>
+              <span className="text-[11px] font-medium text-slate-500">Direct process boiler thermal combustion</span>
             </div>
           </div>
         )}
@@ -181,29 +184,29 @@ export const FactoryDataForm = () => {
         {activeTab === 'materials' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Primary Raw Material Category</label>
+              <label className={labelStyle}>Primary Raw Material Category</label>
               <input
                 type="text"
                 name="rawMaterialType"
                 value={formData.rawMaterialType}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Annual Material Input (Tonnes/yr)</label>
+              <label className={labelStyle}>Annual Material Input (Tonnes/yr)</label>
               <input
                 type="number"
                 name="rawMaterialQuantityTonnes"
                 value={formData.rawMaterialQuantityTonnes}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <label className="block text-xs font-bold text-slate-primary">Secondary Recycled Feedstock Ratio (%)</label>
+              <label className={labelStyle}>Secondary Recycled Feedstock Ratio (%)</label>
               <input
                 type="number"
                 name="recycledMaterialPct"
@@ -211,9 +214,9 @@ export const FactoryDataForm = () => {
                 max="100"
                 value={formData.recycledMaterialPct}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
-              <span className="text-[11px] text-slate-secondary">Higher recycled content slashes upstream Scope 3 extraction footprint</span>
+              <span className="text-[11px] font-medium text-slate-500">Higher recycled content slashes upstream Scope 3 extraction footprint</span>
             </div>
           </div>
         )}
@@ -222,18 +225,18 @@ export const FactoryDataForm = () => {
         {activeTab === 'waste' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Total Annual Process Waste (Tonnes/yr)</label>
+              <label className={labelStyle}>Total Annual Process Waste (Tonnes/yr)</label>
               <input
                 type="number"
                 name="wasteGeneratedTonnes"
                 value={formData.wasteGeneratedTonnes}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Waste Recycling / Diversion Rate (%)</label>
+              <label className={labelStyle}>Waste Recycling / Diversion Rate (%)</label>
               <input
                 type="number"
                 name="wasteRecycledPct"
@@ -241,7 +244,7 @@ export const FactoryDataForm = () => {
                 max="100"
                 value={formData.wasteRecycledPct}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
             </div>
           </div>
@@ -251,29 +254,29 @@ export const FactoryDataForm = () => {
         {activeTab === 'transport' && (
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-primary">Total Logistics Haul Distance (km/yr)</label>
+              <label className={labelStyle}>Total Logistics Haul Distance (km/yr)</label>
               <input
                 type="number"
                 name="transportDistanceKm"
                 value={formData.transportDistanceKm}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-surface-border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className={inputStyle}
               />
-              <span className="text-[11px] text-slate-secondary">Freight hauling distance for raw materials & finished product distribution</span>
+              <span className="text-[11px] font-medium text-slate-500">Freight hauling distance for raw materials & finished product distribution</span>
             </div>
           </div>
         )}
 
         {/* Footer Actions */}
-        <div className="pt-4 border-t border-surface-border flex items-center justify-between">
-          <p className="text-xs text-slate-secondary">
+        <div className="pt-4 border-t border-slate-200/70 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-slate-500">
             * All calculations execute deterministically on standard GHG Protocol emission factors.
           </p>
 
           <button
             type="submit"
             disabled={calculating}
-            className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-5 py-2.5 rounded-lg shadow-md transition-all disabled:opacity-50"
+            className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow-md transition-all disabled:opacity-50"
           >
             {calculating ? (
               <>
