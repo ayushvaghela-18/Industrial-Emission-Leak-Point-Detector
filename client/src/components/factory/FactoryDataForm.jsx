@@ -44,17 +44,17 @@ export const FactoryDataForm = () => {
     setTimeout(() => setSuccessMsg(''), 4000);
   };
 
-  const inputStyle = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all text-sm";
+  const inputStyle = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none transition-all text-sm shadow-sm";
   const labelStyle = "block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1";
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg">
+    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
       
       {/* Header */}
-      <div className="p-6 border-b border-slate-800 bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/50 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
         <div>
           <h2 className="text-lg font-bold tracking-tight flex items-center gap-2 text-white">
-            <FactoryIcon className="w-5 h-5 text-emerald-400" />
+            <FactoryIcon className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             Operational Telemetry Input
           </h2>
           <p className="text-xs text-slate-400 mt-1">Enter process parameters to calculate deterministic Scope 1, 2, and 3 emissions.</p>
@@ -276,7 +276,7 @@ export const FactoryDataForm = () => {
           <button
             type="submit"
             disabled={calculating}
-            className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow-md transition-all disabled:opacity-50"
+            className="flex items-center space-x-2 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50"
           >
             {calculating ? (
               <>

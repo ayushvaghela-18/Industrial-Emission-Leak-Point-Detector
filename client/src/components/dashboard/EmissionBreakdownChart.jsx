@@ -27,10 +27,10 @@ export const EmissionBreakdownChart = () => {
     if (active && payload && payload.length) {
       const d = payload[0].payload;
       return (
-        <div className="bg-slate-900 text-white p-3 rounded-xl shadow-xl text-xs border border-slate-800">
-          <p className="font-bold">{d.category}</p>
-          <p className="text-emerald-400 font-semibold">{d.amount.toLocaleString()} tCO2e ({d.pct}%)</p>
-          <span className="text-[10px] text-slate-400">{d.scope}</span>
+        <div className="bg-white text-slate-900 p-3 rounded-lg shadow-lg border border-slate-200/80 text-xs space-y-0.5" style={{ borderRadius: '8px' }}>
+          <p className="font-bold text-slate-800">{d.category}</p>
+          <p className="text-emerald-600 font-semibold">{d.amount.toLocaleString()} tCO2e ({d.pct}%)</p>
+          <span className="text-[10px] text-slate-500">{d.scope}</span>
         </div>
       );
     }
@@ -41,11 +41,11 @@ export const EmissionBreakdownChart = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
       {/* Donut Category Breakdown */}
-      <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg flex flex-col justify-between">
+      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <PieIcon className="w-5 h-5 text-emerald-600" />
+              <PieIcon className="w-5 h-5 text-emerald-600 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
               <h3 className="text-base font-bold text-slate-900 tracking-tight">Emission Category Contribution</h3>
             </div>
             <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">By Operational Stream</span>
@@ -86,11 +86,11 @@ export const EmissionBreakdownChart = () => {
       </div>
 
       {/* Bar Chart ranking */}
-      <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg flex flex-col justify-between">
+      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <BarChart2 className="w-5 h-5 text-emerald-600" />
+              <BarChart2 className="w-5 h-5 text-emerald-600 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
               <h3 className="text-base font-bold text-slate-900 tracking-tight">Emissions Ranking (tCO2e)</h3>
             </div>
             <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Deterministic Mass</span>
@@ -102,7 +102,7 @@ export const EmissionBreakdownChart = () => {
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
                 <YAxis dataKey="category" type="category" width={110} tick={{ fontSize: 10, fill: '#0F172A' }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="amount" radius={[0, 6, 6, 0]}>
+                <Bar dataKey="amount" radius={[0, 4, 4, 0]}>
                   {data.map((entry, index) => (
                     <Cell key={`cell-bar-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                   ))}

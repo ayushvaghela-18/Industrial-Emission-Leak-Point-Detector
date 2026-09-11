@@ -15,10 +15,10 @@ export const ExecutiveSummary = () => {
     <div className="space-y-6">
       
       {/* Top Banner Alert */}
-      <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 shadow-lg rounded-2xl relative overflow-hidden p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <ShieldCheck className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             <h2 className="text-lg font-bold tracking-tight text-white">Industrial Sustainability & Decarbonization Intelligence</h2>
           </div>
           <p className="text-xs text-slate-400">

@@ -19,7 +19,7 @@ export const SustainabilityScoreCard = () => {
   const grade = getScoreGrade(score);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg flex flex-col justify-between space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Award className="w-5 h-5 text-emerald-600" />
@@ -51,7 +51,7 @@ export const SustainabilityScoreCard = () => {
 
       <button
         onClick={() => setActiveTab('recommendations')}
-        className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-md transition-all"
+        className="w-full py-3 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all"
       >
         Explore Circular Interventions
       </button>

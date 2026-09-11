@@ -37,14 +37,30 @@ export const SimulatorControls = () => {
     }
   ];
 
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white text-slate-900 p-3 rounded-lg shadow-lg border border-slate-200/80 text-xs space-y-1" style={{ borderRadius: '8px' }}>
+          <p className="font-bold text-slate-800">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="font-semibold text-xs" style={{ color: entry.color }}>
+              {entry.name}: {entry.value?.toLocaleString()} tCO2e
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       
       {/* Header Banner */}
-      <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 shadow-lg rounded-2xl relative overflow-hidden p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold tracking-tight flex items-center gap-2 text-white">
-            <SlidersHorizontal className="w-5 h-5 text-emerald-400" />
+            <SlidersHorizontal className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             Interactive Industrial Decarbonization Simulator
           </h2>
           <p className="text-xs text-slate-400 mt-1">
@@ -64,7 +80,7 @@ export const SimulatorControls = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Sliders Column */}
-        <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg space-y-6 lg:col-span-1">
+        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-6 lg:col-span-1">
           <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-3">
             Simulation Operational Levers
           </h3>
@@ -152,7 +168,7 @@ export const SimulatorControls = () => {
           <button
             onClick={handleRunSimulation}
             disabled={simulating}
-            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 shadow-md transition-all"
+            className="w-full py-3 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 shadow-md hover:shadow-lg transition-all"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${simulating ? 'animate-spin' : ''}`} />
             <span>Recalculate Scenario</span>
@@ -164,7 +180,7 @@ export const SimulatorControls = () => {
           
           {/* Comparison Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-6 bg-white rounded-2xl border border-slate-200/70 shadow-sm transition-all hover:shadow-lg">
+            <div className="p-6 bg-white rounded-2xl border border-slate-200/60 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               <span className="text-sm font-medium text-slate-500 uppercase tracking-wider block">CO2 Reduction Delta</span>
               <span className="text-4xl font-extrabold text-emerald-600 tracking-tight block mt-2">
                 -{deltas ? deltas.co2ReductionTonnes.toLocaleString() : Math.round(baselineCO2 * 0.32).toLocaleString()}
@@ -174,7 +190,7 @@ export const SimulatorControls = () => {
               </span>
             </div>
 
-            <div className="p-6 bg-white rounded-2xl border border-slate-200/70 shadow-sm transition-all hover:shadow-lg">
+            <div className="p-6 bg-white rounded-2xl border border-slate-200/60 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
               <span className="text-sm font-medium text-slate-500 uppercase tracking-wider block">Est. Annual Cost Savings</span>
               <span className="text-4xl font-extrabold text-slate-900 tracking-tight block mt-2">
                 ${deltas ? deltas.estimatedSavingsUSD.toLocaleString() : '384,000'}
@@ -182,7 +198,7 @@ export const SimulatorControls = () => {
               <span className="text-xs font-medium text-slate-500 block mt-1">/ year operational gain</span>
             </div>
 
-            <div className="p-6 bg-slate-900 text-white rounded-2xl shadow-md border border-slate-800">
+            <div className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl shadow-lg border border-slate-700/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <span className="text-sm font-medium text-slate-400 uppercase tracking-wider block">Projected Score</span>
               <span className="text-4xl font-extrabold text-emerald-400 tracking-tight block mt-2">
                 {deltas ? deltas.newSustainabilityScore : 74} <span className="text-base text-slate-400 font-normal">/ 100</span>
@@ -192,17 +208,17 @@ export const SimulatorControls = () => {
           </div>
 
           {/* Chart Baseline vs Simulated */}
-          <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-4">
             <h3 className="text-base font-bold text-slate-900 tracking-tight">Baseline vs Simulated Footprint (tCO2e/yr)</h3>
             <div className="h-60 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#0F172A' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-                  <Tooltip />
+                  <Tooltip content={<CustomTooltip />} />
                   <Legend />
-                  <Bar dataKey="Baseline" fill="#0f172a" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="Simulated" fill="#10b981" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="Baseline" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Simulated" fill="#10b981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

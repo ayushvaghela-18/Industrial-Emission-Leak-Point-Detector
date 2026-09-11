@@ -25,7 +25,7 @@ export const DashboardPage = () => {
 
           {/* Top Recommendation Highlight */}
           {topRec && (
-            <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm transition-all hover:shadow-lg p-6 space-y-3">
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Top Priority Intervention</span>
                 <button

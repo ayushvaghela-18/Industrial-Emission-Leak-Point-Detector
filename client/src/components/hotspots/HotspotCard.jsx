@@ -4,7 +4,7 @@ import { Flame, ArrowRight, DollarSign, TrendingDown, Info } from 'lucide-react'
 
 export const HotspotCard = ({ hotspot, onSelect }) => {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 transition-all duration-300 hover:shadow-lg flex flex-col justify-between space-y-4">
+    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between space-y-4">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <SeverityBadge severity={hotspot.severity} />
@@ -41,7 +41,7 @@ export const HotspotCard = ({ hotspot, onSelect }) => {
 
         <button
           onClick={() => onSelect(hotspot)}
-          className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-md transition-all"
+          className="w-full py-2.5 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-md hover:shadow-lg transition-all"
         >
           <span>Inspect Leak Point Details</span>
           <ArrowRight className="w-4 h-4" />

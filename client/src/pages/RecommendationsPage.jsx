@@ -12,10 +12,10 @@ export const RecommendationsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md flex items-center justify-between">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 shadow-lg rounded-2xl relative overflow-hidden p-6 text-white flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-2">
-            <Recycle className="w-6 h-6 text-emerald-400" />
+            <Recycle className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
             <h2 className="text-lg font-bold tracking-tight text-white">Circular Economy & Decarbonization Action Plan</h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">

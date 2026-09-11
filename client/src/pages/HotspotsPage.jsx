@@ -12,9 +12,9 @@ export const HotspotsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-md">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/50 shadow-lg rounded-2xl relative overflow-hidden p-6 text-white">
         <div className="flex items-center space-x-2">
-          <Flame className="w-6 h-6 text-red-400 animate-pulse" />
+          <Flame className="w-6 h-6 text-red-400 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
           <h2 className="text-lg font-bold tracking-tight text-white">Industrial Emission Leak Point Diagnostics</h2>
         </div>
         <p className="text-xs text-slate-400 mt-1">

@@ -37,7 +37,7 @@ export const NewFactoryModal = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const inputStyle = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all text-sm";
+  const inputStyle = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none transition-all text-sm shadow-sm";
   const labelStyle = "block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1";
 
   return (
