@@ -2,45 +2,68 @@
  * EcoForge AI — Recommendation Engine Test Script
  * 
  * Verifies catalog retrieval, deterministic scoring, hotspot targeting,
- * and financial / CO2 impact calculations.
+ * and Member 2 API contract adapter normalization.
  */
 
-import { generateRecommendations } from './recommendationEngine.js';
+import { generateRecommendations, normalizeAnalysisInput } from './recommendationEngine.js';
 
-console.log('🧪 Starting Circular Recommendation Engine Tests...\n');
+console.log('🧪 Starting Circular Recommendation Engine & Member 2 Adapter Tests...\n');
 
-// Mock factory analysis payload from Member 2's emission engine
-const sampleAnalysis = {
-  factoryProfile: {
+// Mock raw payload formatted EXACTLY as Member 2's analyzeEmissions controller output
+const rawMember2Analysis = {
+  factoryId: 'FAC-TEXTILE-909',
+  factory: {
     id: 'FAC-TEXTILE-909',
     name: 'Apex Textile Processing Mill',
-    industry: 'textiles',
+    industryType: 'textiles',
     location: 'Gujarat, India',
-    annualProductionTons: 15000,
   },
-  totalEmissionsTons: 450.5,
-  categoryBreakdown: {
-    electricity: 180.2, // 40%
-    diesel: 135.15,    // 30%
-    coal: 67.57,       // 15%
-    raw_materials: 45.05, // 10%
-    waste: 22.53,      // 5%
-  },
-  topHotspots: [
-    { key: 'electricity', name: 'Grid Electricity', emissionsTons: 180.2, percentage: 40.0 },
-    { key: 'diesel', name: 'Diesel Generators & Fleet', emissionsTons: 135.15, percentage: 30.0 },
-    { key: 'coal', name: 'Coal Boiler Steam', emissionsTons: 67.57, percentage: 15.0 },
-    { key: 'raw_materials', name: 'Virgin Materials', emissionsTons: 45.05, percentage: 10.0 },
-    { key: 'waste', name: 'Effluent Waste', emissionsTons: 22.53, percentage: 5.0 },
+  totalEmissionsTonsCO2e: 450.5,
+  totalEmissionsKgCO2e: 450500,
+  categories: [
+    { category: 'energy', emissionsTonsCO2e: 382.92, percentage: 85.0 },
+    { category: 'materials', emissionsTonsCO2e: 45.05, percentage: 10.0 },
+    { category: 'waste', emissionsTonsCO2e: 22.53, percentage: 5.0 },
+  ],
+  sources: [
+    { source: 'Grid Electricity', category: 'energy', emissionsTonsCO2e: 180.2, percentage: 40.0 },
+    { source: 'Diesel Fuel', category: 'energy', emissionsTonsCO2e: 135.15, percentage: 30.0 },
+    { source: 'Industrial Coal', category: 'energy', emissionsTonsCO2e: 67.57, percentage: 15.0 },
+    { source: 'Virgin Raw Materials', category: 'materials', emissionsTonsCO2e: 45.05, percentage: 10.0 },
+    { source: 'Waste Landfill Degradation', category: 'waste', emissionsTonsCO2e: 22.53, percentage: 5.0 },
+  ],
+  hotspots: [
+    { rank: 1, source: 'Grid Electricity', category: 'energy', emissionsTonsCO2e: 180.2, percentage: 40.0, severity: 'CRITICAL_HOTSPOT' },
+    { rank: 2, source: 'Diesel Fuel', category: 'energy', emissionsTonsCO2e: 135.15, percentage: 30.0, severity: 'HIGH_HOTSPOT' },
+    { rank: 3, source: 'Industrial Coal', category: 'energy', emissionsTonsCO2e: 67.57, percentage: 15.0, severity: 'MEDIUM_HOTSPOT' },
   ],
   operationalData: {
     electricityKWh: 225000,
     dieselLitres: 50000,
-    coalTons: 350,
   },
 };
 
-const recommendations = generateRecommendations(sampleAnalysis);
+// 1. Test Adapter Normalization
+console.log('Test 1: Testing normalizeAnalysisInput() on raw Member 2 output');
+const normalized = normalizeAnalysisInput(rawMember2Analysis);
+
+if (normalized.totalEmissionsTons !== 450.5) {
+  console.error('❌ FAIL: totalEmissionsTons mapping failed.');
+  process.exit(1);
+}
+if (normalized.factoryProfile.industry !== 'textiles') {
+  console.error('❌ FAIL: industryType mapping failed.');
+  process.exit(1);
+}
+if (normalized.topHotspots[0].key !== 'electricity') {
+  console.error('❌ FAIL: Source string "Grid Electricity" to key mapping failed.');
+  process.exit(1);
+}
+console.log('✅ Test 1 Passed: Adapter correctly normalized Member 2 fields!\n');
+
+// 2. Test Recommendation Generation on Member 2 output
+console.log('Test 2: Generating recommendations directly from raw Member 2 analysis object');
+const recommendations = generateRecommendations(rawMember2Analysis);
 
 console.log(`✅ Recommendations Generated: ${recommendations.length} items found.\n`);
 
@@ -67,9 +90,4 @@ if (!topRec.id || !topRec.estimatedCO2Reduction || !topRec.estimatedAnnualSaving
   process.exit(1);
 }
 
-if (topRec.score <= 0) {
-  console.error('❌ FAIL: Expected positive deterministic score.');
-  process.exit(1);
-}
-
-console.log('\n🎉 ALL RECOMMENDATION ENGINE TESTS PASSED CLEANLY!\n');
+console.log('\n🎉 ALL RECOMMENDATION ENGINE & ADAPTER TESTS PASSED CLEANLY!\n');

@@ -6,6 +6,8 @@
  */
 
 import { askCopilot } from './aiCopilotService.js';
+import { generateRecommendations } from '../recommendations/recommendationEngine.js';
+import { EmissionAnalysisRepository, FactoryRepository } from '../../utils/repository.js';
 
 /**
  * POST /api/ai/chat
@@ -13,8 +15,12 @@ import { askCopilot } from './aiCopilotService.js';
  */
 export async function aiChatHandler(req, res) {
   try {
+    const rawBody = req.body || {};
+    const payload = rawBody.data || rawBody;
+
     const {
       userQuestion,
+      factoryId,
       factoryContext = {},
       analysisContext = {},
       recommendationContext = [],
@@ -24,43 +30,50 @@ export async function aiChatHandler(req, res) {
       totalEmissionsTons,
       categoryBreakdown,
       topHotspots,
-      recommendations,
-    } = req.body || {};
+      recommendations: inputRecommendations,
+    } = payload;
 
-    // Merge nested context payloads gracefully
-    const effectiveProfile = {
-      ...factoryProfile,
-      ...(factoryContext.factoryProfile || analysisContext.factoryProfile || {}),
-    };
-    const effectiveOps = {
-      ...operationalData,
-      ...(factoryContext.operationalData || analysisContext.operationalData || {}),
-    };
-    const effectiveTotal =
-      totalEmissionsTons ??
-      analysisContext.totalEmissionsTons ??
-      factoryContext.totalEmissionsTons ??
-      0;
-    const effectiveBreakdown =
-      categoryBreakdown ||
-      analysisContext.categoryBreakdown ||
-      factoryContext.categoryBreakdown ||
-      {};
-    const effectiveHotspots =
-      topHotspots || analysisContext.topHotspots || factoryContext.topHotspots || [];
-    const effectiveRecs =
-      recommendations ||
-      recommendationContext ||
-      analysisContext.recommendations ||
-      [];
+    let targetFactoryId = factoryId || factoryContext.factoryId || analysisContext.factoryId || factoryProfile.id || null;
+    let effectiveAnalysis = { ...analysisContext };
+    let effectiveFactory = { ...factoryProfile, ...(factoryContext.factoryProfile || analysisContext.factoryProfile || {}) };
+
+    // DB Hydration: If factoryId is supplied but analysisContext is not fully provided, read from DB
+    if (targetFactoryId && (!effectiveAnalysis.totalEmissionsTonsCO2e && !effectiveAnalysis.totalEmissionsTons && !totalEmissionsTons)) {
+      try {
+        const factoryDoc = await FactoryRepository.findById(targetFactoryId);
+        const latestAnalysisDoc = await EmissionAnalysisRepository.findLatestByFactoryId
+          ? await EmissionAnalysisRepository.findLatestByFactoryId(targetFactoryId)
+          : (await EmissionAnalysisRepository.findByFactoryId(targetFactoryId))?.[0];
+
+        if (latestAnalysisDoc) {
+          effectiveAnalysis = latestAnalysisDoc;
+          if (factoryDoc) effectiveFactory = factoryDoc;
+        }
+      } catch (dbErr) {
+        console.warn(`Could not hydrate AI copilot analysis from DB for ${targetFactoryId}:`, dbErr.message);
+      }
+    }
+
+    // Auto-generate recommendations if not explicitly passed
+    let effectiveRecs = inputRecommendations || recommendationContext || analysisContext.recommendations || [];
+    if (!effectiveRecs || effectiveRecs.length === 0) {
+      effectiveRecs = generateRecommendations({
+        ...effectiveAnalysis,
+        factoryProfile: effectiveFactory,
+        totalEmissionsTons,
+        categoryBreakdown,
+        topHotspots,
+      });
+    }
 
     const copilotResult = await askCopilot({
       userQuestion,
-      factoryProfile: effectiveProfile,
-      operationalData: effectiveOps,
-      totalEmissionsTons: effectiveTotal,
-      categoryBreakdown: effectiveBreakdown,
-      topHotspots: effectiveHotspots,
+      analysisContext: effectiveAnalysis,
+      factoryProfile: effectiveFactory,
+      operationalData: { ...operationalData, ...(factoryContext.operationalData || analysisContext.operationalData || {}) },
+      totalEmissionsTons: totalEmissionsTons ?? effectiveAnalysis.totalEmissionsTonsCO2e ?? effectiveAnalysis.totalEmissionsTons ?? 0,
+      categoryBreakdown: categoryBreakdown || effectiveAnalysis.categories || effectiveAnalysis.categoryBreakdown || {},
+      topHotspots: topHotspots || effectiveAnalysis.hotspots || effectiveAnalysis.topHotspots || [],
       recommendations: effectiveRecs,
       simulationResults,
     });

@@ -5,56 +5,57 @@
  * Primary Ownership: Member 3 (Circular Recommendation & AI Copilot)
  */
 
-import { generateRecommendations } from './recommendationEngine.js';
+import { generateRecommendations, normalizeAnalysisInput } from './recommendationEngine.js';
+import { EmissionAnalysisRepository, FactoryRepository } from '../../utils/repository.js';
 
-// In-memory cache for hackathon prototype storage by factoryId
+// In-memory cache for fast lookup during hackathon prototype execution
 const recommendationCache = new Map();
 
 /**
  * POST /api/recommendations/generate
- * Generate circular recommendations based on emission analysis payload.
+ * Generate circular recommendations based on emission analysis payload or factory ID.
  */
 export async function generateRecommendationsHandler(req, res) {
   try {
-    const {
-      factoryId,
-      factoryProfile = {},
-      totalEmissionsTons = 0,
-      categoryBreakdown = {},
-      topHotspots = [],
-      operationalData = {},
-      analysisContext = {},
-    } = req.body || {};
+    const rawBody = req.body || {};
+    const payload = rawBody.data || rawBody;
 
-    // Merge analysisContext if provided in nested format
-    const effectiveTotal = totalEmissionsTons || analysisContext.totalEmissionsTons || 0;
-    const effectiveBreakdown = categoryBreakdown || analysisContext.categoryBreakdown || {};
-    const effectiveHotspots = (topHotspots && topHotspots.length > 0)
-      ? topHotspots
-      : (analysisContext.topHotspots || []);
-    const effectiveProfile = { ...factoryProfile, ...(analysisContext.factoryProfile || {}) };
-    const effectiveOps = { ...operationalData, ...(analysisContext.operationalData || {}) };
+    let targetFactoryId = payload.factoryId || payload.factoryProfile?.id || null;
+    let analysisData = payload;
 
-    const recommendations = generateRecommendations({
-      factoryProfile: effectiveProfile,
-      totalEmissionsTons: effectiveTotal,
-      categoryBreakdown: effectiveBreakdown,
-      topHotspots: effectiveHotspots,
-      operationalData: effectiveOps,
-    });
+    // If factoryId is provided but emission data is sparse, attempt read-only DB hydration
+    if (targetFactoryId && (!payload.categories || !payload.topHotspots)) {
+      try {
+        const factoryDoc = await FactoryRepository.findById(targetFactoryId);
+        const latestAnalysisDoc = await EmissionAnalysisRepository.findLatestByFactoryId
+          ? await EmissionAnalysisRepository.findLatestByFactoryId(targetFactoryId)
+          : (await EmissionAnalysisRepository.findByFactoryId(targetFactoryId))?.[0];
 
-    const targetFactoryId = factoryId || effectiveProfile.id || 'default_factory';
+        if (latestAnalysisDoc) {
+          analysisData = {
+            ...latestAnalysisDoc,
+            factory: factoryDoc || latestAnalysisDoc.factory || payload.factoryProfile,
+            operationalData: payload.operationalData || payload.processData,
+          };
+        }
+      } catch (dbErr) {
+        console.warn(`Could not hydrate factory analysis from DB for ${targetFactoryId}:`, dbErr.message);
+      }
+    }
 
-    // Store in-memory for hackathon retrieval
-    recommendationCache.set(targetFactoryId, {
-      factoryId: targetFactoryId,
+    const recommendations = generateRecommendations(analysisData);
+    const finalFactoryId = targetFactoryId || 'default_factory';
+
+    // Store in-memory cache
+    recommendationCache.set(finalFactoryId, {
+      factoryId: finalFactoryId,
       generatedAt: new Date().toISOString(),
       recommendations,
     });
 
     return res.status(200).json({
       success: true,
-      factoryId: targetFactoryId,
+      factoryId: finalFactoryId,
       count: recommendations.length,
       recommendations,
     });
@@ -75,32 +76,62 @@ export async function generateRecommendationsHandler(req, res) {
 export async function getRecommendationsByFactoryHandler(req, res) {
   try {
     const { factoryId } = req.params;
-    const data = recommendationCache.get(factoryId);
 
-    if (!data) {
-      // Fallback: Generate generic baseline recommendations if factory not found in cache
-      const defaultRecs = generateRecommendations({
-        factoryProfile: { name: 'Sample Industrial Facility', industry: 'manufacturing' },
-        totalEmissionsTons: 250,
-        categoryBreakdown: { electricity: 100, diesel: 75, raw_materials: 50, transport: 25 },
-        topHotspots: [
-          { key: 'electricity', name: 'Grid Electricity', emissionsTons: 100, percentage: 40 },
-          { key: 'diesel', name: 'Diesel Generator', emissionsTons: 75, percentage: 30 },
-        ],
-      });
-
+    // 1. Check in-memory cache first
+    const cachedData = recommendationCache.get(factoryId);
+    if (cachedData) {
       return res.status(200).json({
         success: true,
-        factoryId,
-        isFallback: true,
-        count: defaultRecs.length,
-        recommendations: defaultRecs,
+        ...cachedData,
       });
     }
 
+    // 2. Query Member 2's DB Repositories in READ-ONLY mode
+    try {
+      const factoryDoc = await FactoryRepository.findById(factoryId);
+      const analyses = await EmissionAnalysisRepository.findByFactoryId(factoryId);
+      const latestAnalysisDoc = analyses.length > 0 ? analyses[0] : null;
+
+      if (latestAnalysisDoc) {
+        const recommendations = generateRecommendations({
+          ...latestAnalysisDoc,
+          factory: factoryDoc || latestAnalysisDoc.factory,
+        });
+
+        const resultPayload = {
+          factoryId,
+          generatedAt: new Date().toISOString(),
+          recommendations,
+        };
+
+        recommendationCache.set(factoryId, resultPayload);
+
+        return res.status(200).json({
+          success: true,
+          ...resultPayload,
+        });
+      }
+    } catch (dbErr) {
+      console.warn(`DB lookup failed for factory ${factoryId}:`, dbErr.message);
+    }
+
+    // 3. Fallback: Return baseline recommendations if no prior analysis recorded
+    const defaultRecs = generateRecommendations({
+      factoryProfile: { name: 'Sample Industrial Facility', industry: 'manufacturing' },
+      totalEmissionsTons: 250,
+      categoryBreakdown: { electricity: 100, diesel: 75, raw_materials: 50, transport: 25 },
+      topHotspots: [
+        { key: 'electricity', name: 'Grid Electricity', emissionsTons: 100, percentage: 40 },
+        { key: 'diesel', name: 'Diesel Generator', emissionsTons: 75, percentage: 30 },
+      ],
+    });
+
     return res.status(200).json({
       success: true,
-      ...data,
+      factoryId,
+      isFallback: true,
+      count: defaultRecs.length,
+      recommendations: defaultRecs,
     });
   } catch (error) {
     console.error('Error fetching recommendations by factory:', error);

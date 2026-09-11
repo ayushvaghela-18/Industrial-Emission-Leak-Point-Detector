@@ -9,31 +9,23 @@
  */
 
 import { SYSTEM_PROMPT, buildGroundingContext } from './promptTemplates.js';
+import { normalizeAnalysisInput } from '../recommendations/recommendationEngine.js';
 
 /**
  * Process a user question using grounded factory application context.
- * 
- * @param {Object} params
- * @param {String} params.userQuestion - Question asked by user
- * @param {Object} [params.factoryProfile] - Basic factory metadata
- * @param {Object} [params.operationalData] - Operational inputs
- * @param {Number} [params.totalEmissionsTons] - Calculated emissions in tCO2e
- * @param {Object} [params.categoryBreakdown] - Category breakdown map
- * @param {Array}  [params.topHotspots] - Ranked emission hotspots
- * @param {Array}  [params.recommendations] - Generated circular recommendations
- * @param {Object} [params.simulationResults] - Optional simulation results
- * @returns {Promise<Object>} { success, answer, supportingMetrics, referencedRecommendations, provider }
  */
-export async function askCopilot({
-  userQuestion,
-  factoryProfile = {},
-  operationalData = {},
-  totalEmissionsTons = 0,
-  categoryBreakdown = {},
-  topHotspots = [],
-  recommendations = [],
-  simulationResults = null,
-}) {
+export async function askCopilot(rawParams = {}) {
+  const {
+    userQuestion,
+    factoryProfile = {},
+    operationalData = {},
+    totalEmissionsTons = 0,
+    categoryBreakdown = {},
+    topHotspots = [],
+    recommendations = [],
+    simulationResults = null,
+  } = rawParams;
+
   if (!userQuestion || userQuestion.trim() === '') {
     return {
       success: false,
@@ -42,24 +34,31 @@ export async function askCopilot({
     };
   }
 
+  // Normalize analysis context if raw Member 2 object provided
+  const normalized = normalizeAnalysisInput(rawParams.analysisContext || rawParams);
+  const effectiveProfile = { ...normalized.factoryProfile, ...factoryProfile };
+  const effectiveTotal = totalEmissionsTons || normalized.totalEmissionsTons || 0;
+  const effectiveBreakdown = Object.keys(categoryBreakdown).length > 0 ? categoryBreakdown : normalized.categoryBreakdown;
+  const effectiveHotspots = topHotspots.length > 0 ? topHotspots : normalized.topHotspots;
+
   // Build structured grounding context
   const groundingContext = buildGroundingContext({
-    factoryProfile,
-    operationalData,
-    totalEmissionsTons,
-    categoryBreakdown,
-    topHotspots,
+    factoryProfile: effectiveProfile,
+    operationalData: { ...normalized.operationalData, ...operationalData },
+    totalEmissionsTons: effectiveTotal,
+    categoryBreakdown: effectiveBreakdown,
+    topHotspots: effectiveHotspots,
     recommendations,
     simulationResults,
   });
 
   // Extract reference metrics & recommendations for client UI highlighting
   const topRecommendation = recommendations[0] || null;
-  const primaryHotspot = topHotspots[0] || null;
+  const primaryHotspot = effectiveHotspots[0] || null;
 
   const supportingMetrics = {
-    totalEmissionsTons,
-    primaryHotspotName: primaryHotspot ? (primaryHotspot.name || primaryHotspot.key) : 'N/A',
+    totalEmissionsTons: effectiveTotal,
+    primaryHotspotName: primaryHotspot ? (primaryHotspot.name || primaryHotspot.source || primaryHotspot.key) : 'N/A',
     primaryHotspotShare: primaryHotspot ? `${primaryHotspot.percentage}%` : 'N/A',
     topRecommendationTitle: topRecommendation ? topRecommendation.title : 'N/A',
     topCO2Reduction: topRecommendation ? `${topRecommendation.estimatedCO2Reduction} tCO2e/year` : 'N/A',
@@ -88,10 +87,10 @@ export async function askCopilot({
   // Graceful Fallback: Local Grounded Deterministic Engine
   const fallbackAnswer = generateDeterministicFallbackResponse({
     userQuestion,
-    factoryProfile,
-    totalEmissionsTons,
-    categoryBreakdown,
-    topHotspots,
+    factoryProfile: effectiveProfile,
+    totalEmissionsTons: effectiveTotal,
+    categoryBreakdown: effectiveBreakdown,
+    topHotspots: effectiveHotspots,
     recommendations,
     simulationResults,
   });
@@ -114,7 +113,7 @@ async function queryGeminiAPI(apiKey, userQuestion, groundingContext) {
   const promptText = `${SYSTEM_PROMPT}\n\n=== GROUNDED FACTORY APPLICATION CONTEXT ===\n${groundingContext}\n\n=== USER QUESTION ===\n${userQuestion}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second safety timeout
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
   try {
     const response = await fetch(endpoint, {
@@ -169,18 +168,19 @@ function generateDeterministicFallbackResponse({
   // Intent 1: Why is [Hotspot] my biggest emission source / Where emissions come from
   if (q.includes('why') || q.includes('biggest') || q.includes('source') || q.includes('leak point')) {
     if (top1) {
+      const srcName = top1.name || top1.source || top1.key || 'Primary Source';
       const matchingRec = recommendations.find(
-        (r) => r.targetHotspot.toLowerCase() === top1.key.toLowerCase()
+        (r) => r.targetHotspot.toLowerCase() === (top1.key || '').toLowerCase()
       ) || rec1;
 
       return `### 🔍 Primary Emission Leak Point Analysis
 
-**${top1.name || top1.key.toUpperCase()}** is your facility's largest emission leak point, generating **${top1.emissionsTons} tCO2e/year**, which represents **${top1.percentage}%** of your total footprint (${totalEmissionsTons} tCO2e/year).
+**${srcName}** is your facility's largest emission leak point, generating **${top1.emissionsTons ?? top1.emissionsTonsCO2e} tCO2e/year**, which represents **${top1.percentage}%** of your total footprint (${totalEmissionsTons} tCO2e/year).
 
 #### Why this is your primary hotspot:
 - High operational intensity in fuel/power consumption.
 - Carbon intensity per unit of energy or material consumed in current processes.
-${top2 ? `- For context, your second largest hotspot is **${top2.name || top2.key}** contributing **${top2.emissionsTons} tCO2e (${top2.percentage}%)**.` : ''}
+${top2 ? `- For context, your second largest hotspot is **${top2.name || top2.source || top2.key}** contributing **${top2.emissionsTons ?? top2.emissionsTonsCO2e} tCO2e (${top2.percentage}%)**.` : ''}
 
 #### Recommended Intervention:
 ${matchingRec ? `To address this leak point directly, we recommend **${matchingRec.title}**. It is estimated to reduce **${matchingRec.estimatedCO2Reduction} tCO2e/year** with an annual saving of **₹${Number(matchingRec.estimatedAnnualSaving).toLocaleString('en-IN')}** (~${matchingRec.paybackPeriod} year payback).` : 'Review the recommended circular interventions tab to target this hotspot.'}`;
@@ -243,14 +243,18 @@ The single largest carbon reduction intervention is **${maxCO2Rec.title}**.
   // Intent 5: What-if Simulation explanation
   if (q.includes('what-if') || q.includes('simulation') || q.includes('scenario') || simulationResults) {
     if (simulationResults) {
+      const baselineTons = simulationResults.baseline?.totalEmissionsTonsCO2e ?? simulationResults.originalEmissionsTons ?? totalEmissionsTons;
+      const projectedTons = simulationResults.projected?.totalEmissionsTonsCO2e ?? simulationResults.simulatedEmissionsTons ?? 0;
+      const co2Reduction = simulationResults.impact?.co2ReductionTons ?? simulationResults.netCO2ChangeTons ?? (baselineTons - projectedTons);
+      const pctChange = simulationResults.impact?.percentageReduction ?? simulationResults.percentageChange ?? 0;
+      const savings = simulationResults.impact?.estimatedAnnualSavingsUSD ?? simulationResults.netFinancialSavingINR ?? 0;
+
       return `### 📊 What-If Scenario Analysis
 
-#### Scenario: ${simulationResults.scenarioName || 'Custom Operational Simulation'}
-
-- **Baseline Footprint:** ${simulationResults.originalEmissionsTons || totalEmissionsTons} tCO2e/year
-- **Simulated Footprint:** **${simulationResults.simulatedEmissionsTons} tCO2e/year**
-- **Net CO2 Change:** **${simulationResults.netCO2ChangeTons > 0 ? '-' : '+'}${Math.abs(simulationResults.netCO2ChangeTons)} tCO2e/year** (${simulationResults.percentageChange}%)
-- **Projected Financial Savings:** **₹${Number(simulationResults.netFinancialSavingINR || 0).toLocaleString('en-IN')}/year**
+- **Baseline Footprint:** ${baselineTons} tCO2e/year
+- **Simulated Footprint:** **${projectedTons} tCO2e/year**
+- **Net CO2 Change:** **-${co2Reduction} tCO2e/year** (-${pctChange}%)
+- **Projected Financial Savings:** **₹/USD ${Number(savings).toLocaleString('en-IN')}/year**
 
 #### Tradeoffs & Considerations:
 Operational parameter adjustments yield immediate carbon reductions. Maintain quality validation for material substitutions to ensure process yield is preserved.`;
@@ -261,14 +265,14 @@ Operational parameter adjustments yield immediate carbon reductions. Maintain qu
   return `### 📊 Sustainability Intelligence Summary for ${factoryProfile.name || 'Your Facility'}
 
 - **Total Estimated Emissions:** **${totalEmissionsTons} tCO2e/year**
-- **Primary Leak Point:** **${top1 ? top1.name || top1.key : 'N/A'}** (${top1 ? top1.percentage : 0}% of emissions)
+- **Primary Leak Point:** **${top1 ? top1.name || top1.source || top1.key : 'N/A'}** (${top1 ? top1.percentage : 0}% of emissions)
 - **Top Circular Recommendation:** **${rec1 ? rec1.title : 'N/A'}**
 
 #### Key Impact Potential:
 ${rec1 ? `Implementing **${rec1.title}** can reduce emissions by **${rec1.estimatedCO2Reduction} tCO2e/year** and save **₹${Number(rec1.estimatedAnnualSaving).toLocaleString('en-IN')}/year** with a payback of ~${rec1.paybackPeriod} years.` : 'Please generate recommendations to view detailed financial & CO2 impacts.'}
 
 Feel free to ask more specific questions like:
-- *"Why is ${top1 ? top1.name || top1.key : 'diesel'} my biggest leak point?"*
+- *"Why is ${top1 ? top1.name || top1.source || top1.key : 'electricity'} my biggest leak point?"*
 - *"Which recommendation has the fastest payback?"*
 - *"What should I change first?"*`;
 }

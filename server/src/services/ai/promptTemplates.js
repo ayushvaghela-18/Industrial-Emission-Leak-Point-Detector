@@ -43,7 +43,7 @@ export function buildGroundingContext({
   const factoryInfo = `
 FACTORY PROFILE:
 - Name: ${factoryProfile.name || 'Industrial Facility'}
-- Industry: ${factoryProfile.industry || 'General Manufacturing'}
+- Industry: ${factoryProfile.industry || factoryProfile.industryType || 'General Manufacturing'}
 - Location: ${factoryProfile.location || 'N/A'}
 - Production Capacity: ${factoryProfile.annualProductionTons ? `${factoryProfile.annualProductionTons} tons/year` : 'N/A'}
 `;
@@ -60,7 +60,7 @@ TOP EMISSION HOTSPOTS (LEAK POINTS):
 ${topHotspots
   .map(
     (h, idx) =>
-      `  ${idx + 1}. ${h.name || h.key} — ${h.emissionsTons} tCO2e (${h.percentage}% of total emissions) [Priority: ${h.priority || 'High'}]`
+      `  ${idx + 1}. ${h.name || h.source || h.key} — ${h.emissionsTons ?? h.emissionsTonsCO2e} tCO2e (${h.percentage}% of total emissions) [Severity: ${h.severity || h.priority || 'High'}]`
   )
   .join('\n') || '  * No hotspots identified'}
 `;
@@ -84,17 +84,25 @@ ${idx + 1}. [${r.priority}] ${r.title} (${r.category})
   .join('\n') || '  * No active recommendations generated'}
 `;
 
-  const simInfo = simulationResults
-    ? `
+  let simInfo = '';
+  if (simulationResults) {
+    // Adapt to Member 2's SimulationService structure
+    const baselineTons = simulationResults.baseline?.totalEmissionsTonsCO2e ?? simulationResults.originalEmissionsTons ?? totalEmissionsTons;
+    const projectedTons = simulationResults.projected?.totalEmissionsTonsCO2e ?? simulationResults.simulatedEmissionsTons ?? 0;
+    const co2Reduction = simulationResults.impact?.co2ReductionTons ?? simulationResults.netCO2ChangeTons ?? (baselineTons - projectedTons);
+    const pctChange = simulationResults.impact?.percentageReduction ?? simulationResults.percentageChange ?? 0;
+    const savings = simulationResults.impact?.estimatedAnnualSavingsUSD ?? simulationResults.netFinancialSavingINR ?? 0;
+    const changes = simulationResults.simulationApplied || simulationResults.adjustments || {};
+
+    simInfo = `
 WHAT-IF SIMULATION RESULTS:
-- Scenario: ${simulationResults.scenarioName || 'User Modification'}
-- Original Total Emissions: ${simulationResults.originalEmissionsTons || totalEmissionsTons} tCO2e
-- Simulated Total Emissions: ${simulationResults.simulatedEmissionsTons} tCO2e
-- Net CO2 Change: ${simulationResults.netCO2ChangeTons} tCO2e (${simulationResults.percentageChange}%)
-- Estimated Net Financial Saving: ₹${Number(simulationResults.netFinancialSavingINR || 0).toLocaleString('en-IN')}
-- Key Parameter Adjustments: ${JSON.stringify(simulationResults.adjustments || {})}
-`
-    : '';
+- Baseline Emissions: ${baselineTons} tCO2e
+- Simulated Emissions: ${projectedTons} tCO2e
+- Net CO2 Reduction: ${co2Reduction} tCO2e (${pctChange}%)
+- Estimated Financial Savings: ₹/USD ${Number(savings).toLocaleString('en-IN')}
+- Key Parameter Adjustments: ${JSON.stringify(changes)}
+`;
+  }
 
   return `${factoryInfo}\n${emissionsInfo}\n${recsInfo}\n${simInfo}`;
 }
