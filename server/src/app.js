@@ -6,6 +6,9 @@ import emissionRoutes from './routes/emissionRoutes.js';
 import simulationRoutes from './routes/simulationRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 
+import recommendationRoutes from './routes/recommendationRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+
 /**
  * Express Application Configuration
  * Primary Ownership: Member 2 (Backend & Emissions)
@@ -57,6 +60,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/factories', factoryRoutes);
 app.use('/api/emissions', emissionRoutes);
 app.use('/api/simulation', simulationRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Global Error Handling Middleware
 app.use(errorHandler);
