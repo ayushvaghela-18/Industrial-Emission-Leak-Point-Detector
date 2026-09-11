@@ -13,45 +13,76 @@ export const analyzeEmissions = async (req, res, next) => {
   try {
     const { factoryId, processData } = req.body;
 
-    // Use processData from body or direct payload
-    const inputData = processData || req.body;
-
-    let targetFactoryId = factoryId;
+    let targetFactory = null;
+    let inputData = processData;
     let savedProcessDataId = null;
 
-    // If factoryId is provided, verify it exists
-    if (targetFactoryId) {
-      const factory = await FactoryRepository.findById(targetFactoryId);
-      if (!factory) {
+    // 1. If factoryId is provided, verify it exists
+    if (factoryId) {
+      targetFactory = await FactoryRepository.findById(factoryId);
+      if (!targetFactory) {
         return errorResponse(
           res,
-          `Factory with id '${targetFactoryId}' not found`,
+          `Factory with id '${factoryId}' not found`,
           HTTP_STATUS.NOT_FOUND,
           'FACTORY_NOT_FOUND'
         );
       }
 
-      // Persist the process data snapshot
-      const savedProcessDoc = await ProcessDataRepository.create({
-        factoryId: targetFactoryId,
-        ...inputData,
-      });
-      savedProcessDataId = savedProcessDoc._id || savedProcessDoc.id;
+      // If processData was provided in request, save new snapshot
+      if (inputData && typeof inputData === 'object' && Object.keys(inputData).length > 0) {
+        const savedProcessDoc = await ProcessDataRepository.create({
+          factoryId,
+          ...inputData,
+        });
+        savedProcessDataId = savedProcessDoc._id || savedProcessDoc.id;
+      } else {
+        // If processData not in body, load the latest recorded process data for this factory
+        const latestProcess = await ProcessDataRepository.findLatestByFactoryId(factoryId);
+        if (latestProcess) {
+          inputData = latestProcess;
+          savedProcessDataId = latestProcess._id || latestProcess.id;
+        }
+      }
     }
 
-    // Deterministic Calculation
+    // 2. If no processData under key, fallback to top-level req.body
+    if (!inputData) {
+      inputData = req.body;
+    }
+
+    // Check if inputData has any operational fields
+    const hasOperationalData = inputData && (
+      inputData.energy ||
+      inputData.materials ||
+      inputData.waste ||
+      inputData.logistics ||
+      inputData.production
+    );
+
+    if (!hasOperationalData && !factoryId) {
+      return errorResponse(
+        res,
+        'No operational process data provided. Please provide energy, materials, waste, logistics, or production metrics.',
+        HTTP_STATUS.BAD_REQUEST,
+        'MISSING_PROCESS_DATA'
+      );
+    }
+
+    // 3. Deterministic Calculation
     const calculation = EmissionCalculator.calculate(inputData);
 
-    // Deterministic Hotspot Detection
+    // 4. Deterministic Hotspot Detection
     const hotspots = HotspotDetector.detectHotspots(
       calculation.sources,
       calculation.totalEmissionsKgCO2e
     );
 
+    // 5. Store Emission Analysis if associated with a factory
     let savedAnalysis = null;
-    if (targetFactoryId) {
+    if (factoryId) {
       savedAnalysis = await EmissionAnalysisRepository.create({
-        factoryId: targetFactoryId,
+        factoryId,
         processDataId: savedProcessDataId,
         totalEmissionsKgCO2e: calculation.totalEmissionsKgCO2e,
         totalEmissionsTonsCO2e: calculation.totalEmissionsTonsCO2e,
@@ -63,7 +94,14 @@ export const analyzeEmissions = async (req, res, next) => {
     }
 
     const responsePayload = {
-      factoryId: targetFactoryId || null,
+      factoryId: factoryId || null,
+      factory: targetFactory
+        ? {
+            id: targetFactory._id || targetFactory.id,
+            name: targetFactory.name,
+            industryType: targetFactory.industryType,
+          }
+        : null,
       analysisId: savedAnalysis ? (savedAnalysis._id || savedAnalysis.id) : null,
       totalEmissionsTonsCO2e: calculation.totalEmissionsTonsCO2e,
       totalEmissionsKgCO2e: calculation.totalEmissionsKgCO2e,
@@ -118,8 +156,10 @@ export const getEmissionsByFactory = async (req, res, next) => {
           id: factory._id || factory.id,
           name: factory.name,
           industryType: factory.industryType,
+          location: factory.location,
         },
         latestAnalysis,
+        history: analyses,
         historyCount: analyses.length,
       },
       'Factory emission analysis retrieved successfully'

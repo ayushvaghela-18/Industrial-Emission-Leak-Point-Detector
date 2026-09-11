@@ -18,6 +18,7 @@ const SimulationResultSchema = new mongoose.Schema(
       fuelReductionPercentage: { type: Number, default: null },
       wasteRecyclingPercentage: { type: Number, default: null },
       energyEfficiencyPercentage: { type: Number, default: null },
+      processEfficiencyPercentage: { type: Number, default: null },
     },
     results: {
       currentEmissionsTonsCO2e: { type: Number, required: true },

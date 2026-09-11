@@ -30,8 +30,12 @@ export const validateFactoryInput = (req, res, next) => {
   next();
 };
 
+/**
+ * Validates operational process data payload (either top-level or under processData key).
+ */
 export const validateProcessDataInput = (req, res, next) => {
-  const { energy, materials, waste, logistics, production } = req.body;
+  const target = req.body.processData || req.body;
+  const { energy, materials, waste, logistics, production } = target;
 
   const errors = [];
 
@@ -113,8 +117,12 @@ export const validateProcessDataInput = (req, res, next) => {
   next();
 };
 
+/**
+ * Validates What-If simulation inputs including changes and optional processData.
+ */
 export const validateSimulationInput = (req, res, next) => {
-  const { scenarioChanges } = req.body;
+  const { scenarioChanges, processData } = req.body;
+
   if (!scenarioChanges || typeof scenarioChanges !== 'object') {
     return errorResponse(
       res,
@@ -125,20 +133,54 @@ export const validateSimulationInput = (req, res, next) => {
   }
 
   const errors = [];
-  const checkPct = (val, name) => {
+
+  // Validate all percentage fields in scenarioChanges
+  for (const [key, val] of Object.entries(scenarioChanges)) {
     if (val !== undefined && val !== null) {
       const num = Number(val);
       if (isNaN(num) || num < 0 || num > 100) {
-        errors.push(`${name} must be between 0 and 100.`);
+        errors.push(`${key} must be a valid percentage between 0 and 100.`);
       }
     }
-  };
+  }
 
-  checkPct(scenarioChanges.renewableEnergyPercentage, 'renewableEnergyPercentage');
-  checkPct(scenarioChanges.recycledMaterialPercentage, 'recycledMaterialPercentage');
-  checkPct(scenarioChanges.fuelReductionPercentage, 'fuelReductionPercentage');
-  checkPct(scenarioChanges.wasteRecyclingPercentage, 'wasteRecyclingPercentage');
-  checkPct(scenarioChanges.energyEfficiencyPercentage, 'energyEfficiencyPercentage');
+  // If processData was provided directly, validate it as well
+  if (processData && typeof processData === 'object') {
+    const { energy, materials, waste, logistics, production } = processData;
+
+    const checkNonNeg = (val, path) => {
+      if (val !== undefined && val !== null) {
+        const num = Number(val);
+        if (isNaN(num) || num < 0) {
+          errors.push(`${path} must be a non-negative number.`);
+        }
+      }
+    };
+
+    if (energy) {
+      checkNonNeg(energy.gridElectricityKwh, 'processData.energy.gridElectricityKwh');
+      checkNonNeg(energy.renewableElectricityKwh, 'processData.energy.renewableElectricityKwh');
+      checkNonNeg(energy.dieselLiters, 'processData.energy.dieselLiters');
+      checkNonNeg(energy.coalKg, 'processData.energy.coalKg');
+      checkNonNeg(energy.naturalGasM3, 'processData.energy.naturalGasM3');
+    }
+
+    if (materials) {
+      checkNonNeg(materials.rawMaterialKg, 'processData.materials.rawMaterialKg');
+    }
+
+    if (waste) {
+      checkNonNeg(waste.wasteGeneratedKg, 'processData.waste.wasteGeneratedKg');
+    }
+
+    if (logistics) {
+      checkNonNeg(logistics.transportTkm, 'processData.logistics.transportTkm');
+    }
+
+    if (production) {
+      checkNonNeg(production.productionVolumeUnits, 'processData.production.productionVolumeUnits');
+    }
+  }
 
   if (errors.length > 0) {
     return errorResponse(

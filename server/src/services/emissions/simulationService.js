@@ -1,5 +1,4 @@
 import { EmissionCalculator } from './emissionCalculator.js';
-import { COST_BENCHMARKS } from '../../data/emissionFactors.js';
 
 /**
  * Deterministic What-If Scenario Simulation Service
@@ -25,48 +24,71 @@ export class SimulationService {
     modified.materials = modified.materials || {};
     modified.waste = modified.waste || {};
 
-    const {
-      renewableEnergyPercentage, // Target % of electricity from renewables (0 - 100)
-      recycledMaterialPercentage, // Target % of raw materials from recycled (0 - 100)
-      fuelReductionPercentage,    // % reduction in fossil fuels (diesel, coal, gas) (0 - 100)
-      wasteRecyclingPercentage,   // % of waste diverted to recycling (0 - 100)
-      energyEfficiencyPercentage, // % reduction in total power demand (0 - 100)
-    } = scenarioChanges;
+    const renewableEnergyPct = scenarioChanges.renewableEnergyPercentage !== undefined
+      ? Number(scenarioChanges.renewableEnergyPercentage)
+      : (scenarioChanges.renewableEnergy !== undefined ? Number(scenarioChanges.renewableEnergy) : undefined);
 
-    // Apply Energy Efficiency first if specified
-    if (energyEfficiencyPercentage !== undefined && energyEfficiencyPercentage > 0) {
-      const effFactor = (100 - Math.min(100, Math.max(0, energyEfficiencyPercentage))) / 100;
+    const recycledMaterialPct = scenarioChanges.recycledMaterialPercentage !== undefined
+      ? Number(scenarioChanges.recycledMaterialPercentage)
+      : (scenarioChanges.recycledMaterial !== undefined ? Number(scenarioChanges.recycledMaterial) : undefined);
+
+    const fuelReductionPct = scenarioChanges.fuelReductionPercentage !== undefined
+      ? Number(scenarioChanges.fuelReductionPercentage)
+      : (scenarioChanges.fuelReduction !== undefined ? Number(scenarioChanges.fuelReduction) : undefined);
+
+    const wasteRecyclingPct = scenarioChanges.wasteRecyclingPercentage !== undefined
+      ? Number(scenarioChanges.wasteRecyclingPercentage)
+      : (scenarioChanges.wasteRecycling !== undefined ? Number(scenarioChanges.wasteRecycling) : undefined);
+
+    const energyEfficiencyPct = scenarioChanges.energyEfficiencyPercentage !== undefined
+      ? Number(scenarioChanges.energyEfficiencyPercentage)
+      : (scenarioChanges.energyEfficiency !== undefined ? Number(scenarioChanges.energyEfficiency) : undefined);
+
+    const processEfficiencyPct = scenarioChanges.processEfficiencyPercentage !== undefined
+      ? Number(scenarioChanges.processEfficiencyPercentage)
+      : (scenarioChanges.processEfficiency !== undefined ? Number(scenarioChanges.processEfficiency) : undefined);
+
+    // A. Apply Energy Efficiency (reduces power demand)
+    if (energyEfficiencyPct !== undefined && energyEfficiencyPct > 0) {
+      const effFactor = (100 - Math.min(100, Math.max(0, energyEfficiencyPct))) / 100;
       modified.energy.gridElectricityKwh = (modified.energy.gridElectricityKwh || 0) * effFactor;
       modified.energy.renewableElectricityKwh = (modified.energy.renewableElectricityKwh || 0) * effFactor;
     }
 
-    // Apply Renewable Energy Shift
-    if (renewableEnergyPercentage !== undefined) {
-      const targetRenewablePct = Math.min(100, Math.max(0, Number(renewableEnergyPercentage)));
+    // B. Apply Process Efficiency (optimizes material yield and reduces waste generation)
+    if (processEfficiencyPct !== undefined && processEfficiencyPct > 0) {
+      const procFactor = (100 - Math.min(100, Math.max(0, processEfficiencyPct))) / 100;
+      modified.materials.rawMaterialKg = (modified.materials.rawMaterialKg || 0) * procFactor;
+      modified.waste.wasteGeneratedKg = (modified.waste.wasteGeneratedKg || 0) * procFactor;
+    }
+
+    // C. Apply Renewable Energy Shift (substitutes fossil grid power with zero-carbon/renewable)
+    if (renewableEnergyPct !== undefined) {
+      const targetRenewablePct = Math.min(100, Math.max(0, renewableEnergyPct));
       const totalElectricityKwh = (modified.energy.gridElectricityKwh || 0) + (modified.energy.renewableElectricityKwh || 0);
 
       modified.energy.renewableElectricityKwh = totalElectricityKwh * (targetRenewablePct / 100);
       modified.energy.gridElectricityKwh = totalElectricityKwh * ((100 - targetRenewablePct) / 100);
     }
 
-    // Apply Fossil Fuel Reductions (Boiler optimization / Electrification)
-    if (fuelReductionPercentage !== undefined && fuelReductionPercentage > 0) {
-      const fuelFactor = (100 - Math.min(100, Math.max(0, Number(fuelReductionPercentage)))) / 100;
+    // D. Apply Fossil Fuel Reductions (Boiler optimization / Electrification / Heat Recovery)
+    if (fuelReductionPct !== undefined && fuelReductionPct > 0) {
+      const fuelFactor = (100 - Math.min(100, Math.max(0, fuelReductionPct))) / 100;
       modified.energy.dieselLiters = (modified.energy.dieselLiters || 0) * fuelFactor;
       modified.energy.coalKg = (modified.energy.coalKg || 0) * fuelFactor;
       modified.energy.naturalGasM3 = (modified.energy.naturalGasM3 || 0) * fuelFactor;
     }
 
-    // Apply Recycled Material Increase
-    if (recycledMaterialPercentage !== undefined) {
-      const targetRecycledPct = Math.min(100, Math.max(0, Number(recycledMaterialPercentage)));
+    // E. Apply Recycled Material Content Increase
+    if (recycledMaterialPct !== undefined) {
+      const targetRecycledPct = Math.min(100, Math.max(0, recycledMaterialPct));
       modified.materials.recycledMaterialPercentage = targetRecycledPct;
       modified.materials.virginMaterialPercentage = 100 - targetRecycledPct;
     }
 
-    // Apply Waste Landfill Diversion
-    if (wasteRecyclingPercentage !== undefined) {
-      const targetWasteRecycledPct = Math.min(100, Math.max(0, Number(wasteRecyclingPercentage)));
+    // F. Apply Waste Landfill Diversion to Recycling
+    if (wasteRecyclingPct !== undefined) {
+      const targetWasteRecycledPct = Math.min(100, Math.max(0, wasteRecyclingPct));
       modified.waste.wasteRecycledPercentage = targetWasteRecycledPct;
       modified.waste.wasteLandfillPercentage = 100 - targetWasteRecycledPct;
     }
