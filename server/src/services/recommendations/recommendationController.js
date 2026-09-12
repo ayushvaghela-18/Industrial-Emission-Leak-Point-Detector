@@ -6,7 +6,7 @@
  */
 
 import { generateRecommendations, generateRankedRecommendations, normalizeAnalysisInput } from './recommendationEngine.js';
-import { EmissionAnalysisRepository, FactoryRepository } from '../../utils/repository.js';
+import { EmissionAnalysisRepository, FactoryRepository, ProcessDataRepository } from '../../utils/repository.js';
 import { checkMLServiceHealth, getMLServiceMetrics } from '../ml/mlServiceClient.js';
 
 // In-memory cache for fast lookup during hackathon prototype execution
@@ -119,17 +119,20 @@ export async function getRecommendationsByFactoryHandler(req, res) {
       const factoryDoc = await FactoryRepository.findById(factoryId);
       const analyses = await EmissionAnalysisRepository.findByFactoryId(factoryId);
       const latestAnalysisDoc = analyses.length > 0 ? analyses[0] : null;
+      const latestProcessDoc = await ProcessDataRepository.findLatestByFactoryId(factoryId);
 
       if (latestAnalysisDoc) {
-        const recommendations = generateRecommendations({
+        const { recommendations, mlInsights } = await generateRankedRecommendations({
           ...latestAnalysisDoc,
           factory: factoryDoc || latestAnalysisDoc.factory,
+          operationalData: latestProcessDoc || latestAnalysisDoc.operationalData,
         });
 
         const resultPayload = {
           factoryId,
           generatedAt: new Date().toISOString(),
           recommendations,
+          mlInsights,
         };
 
         recommendationCache.set(factoryId, resultPayload);
@@ -144,7 +147,7 @@ export async function getRecommendationsByFactoryHandler(req, res) {
     }
 
     // 3. Fallback: Return baseline recommendations if no prior analysis recorded
-    const defaultRecs = generateRecommendations({
+    const { recommendations: defaultRecs, mlInsights } = await generateRankedRecommendations({
       factoryProfile: { name: 'Sample Industrial Facility', industry: 'manufacturing' },
       totalEmissionsTons: 250,
       categoryBreakdown: { electricity: 100, diesel: 75, raw_materials: 50, transport: 25 },
@@ -160,6 +163,7 @@ export async function getRecommendationsByFactoryHandler(req, res) {
       isFallback: true,
       count: defaultRecs.length,
       recommendations: defaultRecs,
+      mlInsights,
     });
   } catch (error) {
     console.error('Error fetching recommendations by factory:', error);

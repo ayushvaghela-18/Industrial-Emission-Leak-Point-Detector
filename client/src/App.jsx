@@ -7,11 +7,13 @@ import HotspotsPage from './pages/HotspotsPage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import SimulatorPage from './pages/SimulatorPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 const App = () => {
   return (
     <Routes>
       <Route element={<LoginPage />} path="/" />
+      <Route element={<RegisterPage />} path="/register" />
       <Route element={<Layout />}>
         <Route element={<DashboardPage />} path="/dashboard" />
         <Route element={<DataInputPage />} path="/input" />

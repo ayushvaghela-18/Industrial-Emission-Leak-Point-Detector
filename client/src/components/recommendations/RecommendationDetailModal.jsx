@@ -11,10 +11,16 @@ export const RecommendationDetailModal = ({ recommendation, onClose }) => {
         
         <div className="flex items-start justify-between border-b border-slate-200 pb-3">
           <div className="space-y-1">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-wrap gap-1.5">
               <span className="text-[10px] font-bold tracking-widest text-emerald-700 bg-emerald-50 ring-1 ring-emerald-600/20 px-3 py-1 rounded-full uppercase">
                 {recommendation.category}
               </span>
+              {typeof recommendation.mlCategoryProbability === 'number' && recommendation.mlCategoryProbability > 0 && (
+                <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                  ML Match: {(recommendation.mlCategoryProbability * 100).toFixed(1)}%
+                </span>
+              )}
               <FeasibilityBadge text={recommendation.feasibility} score={recommendation.feasibilityScore} />
             </div>
             <h3 className="text-lg font-bold tracking-tight text-slate-900">{recommendation.title}</h3>

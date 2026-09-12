@@ -1,0 +1,225 @@
+{
+  "model": "EcoForge Circular Random Forest Classifier",
+  "version": "1.0.0",
+  "evaluationDate": "2026-09-12T03:50:57.034191Z",
+  "datasetSamples": 2000,
+  "trainSamples": 1400,
+  "valSamples": 300,
+  "testSamples": 300,
+  "overallAccuracy": 0.98,
+  "top3Accuracy": 1.0,
+  "macroPrecision": 0.9815,
+  "macroRecall": 0.9801,
+  "macroF1": 0.9804,
+  "weightedF1": 0.9802,
+  "perClassMetrics": {
+    "Alternative Materials": {
+      "precision": 1.0,
+      "recall": 0.9412,
+      "f1": 0.9697,
+      "support": 34
+    },
+    "Energy Optimization": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 33
+    },
+    "Material Reuse": {
+      "precision": 1.0,
+      "recall": 0.9394,
+      "f1": 0.9688,
+      "support": 33
+    },
+    "Process Changes": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 33
+    },
+    "Recycled Materials": {
+      "precision": 0.8919,
+      "recall": 0.9706,
+      "f1": 0.9296,
+      "support": 34
+    },
+    "Recycling Loops": {
+      "precision": 0.9412,
+      "recall": 0.9697,
+      "f1": 0.9552,
+      "support": 33
+    },
+    "Renewable Energy Substitution": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 33
+    },
+    "Transportation Optimization": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 33
+    },
+    "Waste-to-Value": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 34
+    }
+  },
+  "confusionMatrix": [
+    [
+      32,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      33,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      31,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      33,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      33,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      32,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      33,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      33,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      34
+    ]
+  ],
+  "classes": [
+    "Alternative Materials",
+    "Energy Optimization",
+    "Material Reuse",
+    "Process Changes",
+    "Recycled Materials",
+    "Recycling Loops",
+    "Renewable Energy Substitution",
+    "Transportation Optimization",
+    "Waste-to-Value"
+  ],
+  "top10FeatureImportances": [
+    {
+      "feature": "transport_tkm",
+      "importance": 0.1295
+    },
+    {
+      "feature": "waste_landfill_percentage",
+      "importance": 0.0808
+    },
+    {
+      "feature": "waste_generated_kg",
+      "importance": 0.0782
+    },
+    {
+      "feature": "virgin_material_percentage",
+      "importance": 0.0712
+    },
+    {
+      "feature": "scope1_share_pct",
+      "importance": 0.0671
+    },
+    {
+      "feature": "scope3_share_pct",
+      "importance": 0.0653
+    },
+    {
+      "feature": "fossil_fuel_burn_mj",
+      "importance": 0.0649
+    },
+    {
+      "feature": "scope2_share_pct",
+      "importance": 0.0632
+    },
+    {
+      "feature": "grid_electricity_kwh",
+      "importance": 0.0609
+    },
+    {
+      "feature": "raw_material_kg",
+      "importance": 0.0592
+    }
+  ]
+}

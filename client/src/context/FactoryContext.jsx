@@ -9,7 +9,7 @@ const FactoryContext = createContext(null);
 /**
  * Hydrates raw backend MongoDB documents into the data structure expected by the frontend components.
  */
-function hydrateFactoryRecord(factory = {}, latestProcessData = null, latestAnalysis = null, recommendations = []) {
+function hydrateFactoryRecord(factory = {}, latestProcessData = null, latestAnalysis = null, recommendations = [], mlInsights = null) {
   const id = factory._id || factory.id;
   const name = factory.name || 'Industrial Facility';
   const industry = factory.industryType || factory.industry || 'Manufacturing';
@@ -115,6 +115,7 @@ function hydrateFactoryRecord(factory = {}, latestProcessData = null, latestAnal
     breakdown,
     hotspots,
     recommendations: recommendations || [],
+    mlInsights: mlInsights || null,
     latestProcessData,
     latestAnalysis
   };
@@ -156,10 +157,11 @@ export const FactoryProvider = ({ children }) => {
               factory,
               latestProcessData,
               latestAnalysis,
-              recRes.data || []
+              recRes.data || [],
+              recRes.mlInsights || null
             );
           } else {
-            activeHydrated = hydrateFactoryRecord(rawFactories[0], null, null, recRes.data || []);
+            activeHydrated = hydrateFactoryRecord(rawFactories[0], null, null, recRes.data || [], recRes.mlInsights || null);
           }
 
           const allHydrated = rawFactories.map((f, idx) => {
@@ -203,7 +205,8 @@ export const FactoryProvider = ({ children }) => {
           factory,
           latestProcessData,
           latestAnalysis,
-          recRes.data || []
+          recRes.data || [],
+          recRes.mlInsights || null
         );
         setActiveFactory(hydrated);
         setSimulationResult(null); // reset active simulation when switching facility
@@ -234,7 +237,8 @@ export const FactoryProvider = ({ children }) => {
           activeFactory,
           res.data.processData || activeFactory.latestProcessData,
           res.data,
-          recRes.data || activeFactory.recommendations
+          recRes.data || activeFactory.recommendations,
+          recRes.mlInsights || activeFactory.mlInsights || null
         );
 
         // Keep current form values in state
@@ -268,7 +272,8 @@ export const FactoryProvider = ({ children }) => {
           newDoc,
           profileData.operationalData,
           res.data.initialAnalysis,
-          recRes.data || []
+          recRes.data || [],
+          recRes.mlInsights || null
         );
 
         setFactories(prev => [hydrated, ...prev]);
@@ -315,6 +320,7 @@ export const FactoryProvider = ({ children }) => {
         copilotOpen,
         setCopilotOpen,
         simulationResult,
+        mlInsights: activeFactory?.mlInsights || null,
         selectFactory,
         submitOperationalData,
         addFactory,

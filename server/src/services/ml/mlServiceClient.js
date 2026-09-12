@@ -35,8 +35,29 @@ export function formatMLPayload(analysisData = {}) {
     ? analysisData.topHotspots
     : (Array.isArray(analysisData.hotspots) ? analysisData.hotspots : []);
   const primaryHotspot = topHotspots[0] || {};
-  const primaryHotspotKey = primaryHotspot.key || primaryHotspot.source || 'electricity';
+  const rawHotspotKey = (primaryHotspot.key || primaryHotspot.source || primaryHotspot.category || 'electricity').toLowerCase();
+  
+  // Normalize to one of the model's trained categorical classes: coal, diesel, electricity, natural_gas, raw_materials, transport, waste
+  let primaryHotspotKey = 'electricity';
+  if (rawHotspotKey.includes('coal')) primaryHotspotKey = 'coal';
+  else if (rawHotspotKey.includes('diesel')) primaryHotspotKey = 'diesel';
+  else if (rawHotspotKey.includes('gas')) primaryHotspotKey = 'natural_gas';
+  else if (rawHotspotKey.includes('electric') || rawHotspotKey.includes('grid')) primaryHotspotKey = 'electricity';
+  else if (rawHotspotKey.includes('material') || rawHotspotKey.includes('raw')) primaryHotspotKey = 'raw_materials';
+  else if (rawHotspotKey.includes('transport') || rawHotspotKey.includes('freight') || rawHotspotKey.includes('fleet') || rawHotspotKey.includes('logistics')) primaryHotspotKey = 'transport';
+  else if (rawHotspotKey.includes('waste') || rawHotspotKey.includes('scrap')) primaryHotspotKey = 'waste';
+  else primaryHotspotKey = rawHotspotKey;
+
   const primaryHotspotShare = Number(primaryHotspot.percentage ?? 35.0);
+
+  // Normalize industry type to model's trained classes: chemical, food_processing, general, metal_engineering, textile
+  const rawIndustry = (factory.industry || factory.industryType || 'general').toLowerCase();
+  let industryType = 'general';
+  if (rawIndustry.includes('textile')) industryType = 'textile';
+  else if (rawIndustry.includes('chem')) industryType = 'chemical';
+  else if (rawIndustry.includes('food') || rawIndustry.includes('beverage')) industryType = 'food_processing';
+  else if (rawIndustry.includes('metal') || rawIndustry.includes('engineer') || rawIndustry.includes('machin')) industryType = 'metal_engineering';
+  else industryType = rawIndustry;
 
   // Calculate scope shares
   const scope1 = Number(analysisData.scope1EmissionsTonsCO2e ?? analysisData.scope1EmissionsTons ?? 0);
@@ -57,8 +78,8 @@ export function formatMLPayload(analysisData = {}) {
   );
 
   return {
-    industry_type: (factory.industry || factory.industryType || 'general').toLowerCase(),
-    primary_hotspot_key: primaryHotspotKey.toLowerCase(),
+    industry_type: industryType,
+    primary_hotspot_key: primaryHotspotKey,
     production_volume_units: Number(production.productionVolumeUnits || 100000),
     grid_electricity_kwh: Number(energy.gridElectricityKwh || 500000),
     renewable_electricity_kwh: Number(energy.renewableElectricityKwh || 0),

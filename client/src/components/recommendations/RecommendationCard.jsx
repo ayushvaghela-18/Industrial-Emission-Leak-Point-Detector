@@ -8,10 +8,21 @@ export const RecommendationCard = ({ rec, onSelect }) => {
       
       {/* Top Meta */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold tracking-widest text-emerald-700 bg-emerald-50 ring-1 ring-emerald-600/20 px-3 py-1 rounded-full uppercase">
-            {rec.category}
-          </span>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-bold tracking-widest text-emerald-700 bg-emerald-50 ring-1 ring-emerald-600/20 px-3 py-1 rounded-full uppercase">
+              {rec.category}
+            </span>
+            {typeof rec.mlCategoryProbability === 'number' && rec.mlCategoryProbability > 0 && (
+              <span
+                className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-500/30 px-2 py-0.5 rounded-full flex items-center gap-1"
+                title={`Ranked by Random Forest model with ${(rec.mlCategoryProbability * 100).toFixed(1)}% category suitability`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                ML Match: {(rec.mlCategoryProbability * 100).toFixed(1)}%
+              </span>
+            )}
+          </div>
           <FeasibilityBadge text={rec.feasibility} score={rec.feasibilityScore} />
         </div>
 

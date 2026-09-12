@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useFactory } from '../context/FactoryContext';
 import { RecommendationCard } from '../components/recommendations/RecommendationCard';
 import { RecommendationDetailModal } from '../components/recommendations/RecommendationDetailModal';
+import { MLInsightsSection } from '../components/recommendations/MLInsightsSection';
 import { Recycle, TrendingDown, DollarSign, CheckCircle2 } from 'lucide-react';
 
 export const RecommendationsPage = () => {
@@ -77,6 +78,9 @@ export const RecommendationsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* ML Intervention Ranking & Explainability Section */}
+      <MLInsightsSection mlInsights={activeFactory.mlInsights} />
 
       {/* Grid or Empty State */}
       {recommendations.length === 0 ? (

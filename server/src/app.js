@@ -8,6 +8,7 @@ import errorHandler from './middleware/errorHandler.js';
 
 import recommendationRoutes from './routes/recommendationRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 /**
  * Express Application Configuration
@@ -62,6 +63,7 @@ app.use('/api/emissions', emissionRoutes);
 app.use('/api/simulation', simulationRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/auth', authRoutes);
 
 // Global Error Handling Middleware
 app.use(errorHandler);

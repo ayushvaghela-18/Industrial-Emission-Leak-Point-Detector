@@ -24,6 +24,9 @@ export function normalizeRecommendation(r = {}) {
     feasibility: r.feasibility || 'High',
     feasibilityScore: r.feasibilityScore || (r.feasibility === 'High' ? 90 : 75),
     priority: r.priority || 'Medium',
+    score: r.score,
+    mlCategoryProbability: r.mlCategoryProbability ?? (r.raw?.mlCategoryProbability ?? null),
+    mlScoreBoost: r.mlScoreBoost ?? (r.raw?.mlScoreBoost ?? null),
     raw: r
   };
 }
@@ -39,17 +42,29 @@ export const recommendationService = {
 
     if (res.success && Array.isArray(res.recommendations)) {
       const normalized = res.recommendations.map(normalizeRecommendation);
-      return { success: true, data: normalized };
+      return {
+        success: true,
+        data: normalized,
+        mlInsights: res.mlInsights || null,
+      };
     }
 
-    return { success: true, data: [] };
+    return { success: true, data: [], mlInsights: null };
   },
 
   async generateRecommendations(payload) {
     const res = await api.post('/recommendations/generate', payload);
     if (res.success && Array.isArray(res.recommendations)) {
-      return { success: true, data: res.recommendations.map(normalizeRecommendation) };
+      return {
+        success: true,
+        data: res.recommendations.map(normalizeRecommendation),
+        mlInsights: res.mlInsights || null,
+      };
     }
     return res;
-  }
+  },
+
+  async getMLStatus() {
+    return await api.get('/recommendations/ml-status');
+  },
 };
