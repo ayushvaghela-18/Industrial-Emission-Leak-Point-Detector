@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, CheckCircle2, DollarSign, TrendingDown, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2 } from 'lucide-react';
 import { FeasibilityBadge } from '../common/Badge';
 
 export const RecommendationDetailModal = ({ recommendation, onClose }) => {
@@ -28,7 +28,7 @@ export const RecommendationDetailModal = ({ recommendation, onClose }) => {
         <div className="grid grid-cols-3 gap-3 p-5 bg-slate-900 text-white rounded-2xl shadow-sm">
           <div>
             <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-medium">CO2 Reduction</span>
-            <span className="text-lg font-extrabold text-emerald-400">-{recommendation.co2ReductionTonnes?.toLocaleString()} tCO2e</span>
+            <span className="text-lg font-extrabold text-emerald-400">-{recommendation.co2ReductionTonnes?.toLocaleString()} tCO₂e</span>
             <span className="text-[10px] text-slate-400 block">({recommendation.co2ReductionPct}% reduction)</span>
           </div>
 

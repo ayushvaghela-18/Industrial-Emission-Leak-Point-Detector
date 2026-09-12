@@ -1,6 +1,6 @@
 import React from 'react';
 import { SeverityBadge } from '../common/Badge';
-import { Flame, ArrowRight, DollarSign, TrendingDown, Info } from 'lucide-react';
+import { ArrowRight, Info } from 'lucide-react';
 
 export const HotspotCard = ({ hotspot, onSelect }) => {
   return (
@@ -30,12 +30,12 @@ export const HotspotCard = ({ hotspot, onSelect }) => {
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="p-3 bg-red-50/60 rounded-xl border border-red-100">
             <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider block">Annual Emissions</span>
-            <span className="font-extrabold text-red-700 text-sm">{hotspot.annualEmissions?.toLocaleString()} tCO2e</span>
+            <span className="font-extrabold text-red-700 text-sm">{hotspot.annualEmissions?.toLocaleString()} tCO₂e / yr</span>
           </div>
 
           <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-100">
-            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider block">Potential CO2 Savings</span>
-            <span className="font-extrabold text-emerald-700 text-sm">-{hotspot.potentialCo2Savings?.toLocaleString()} tCO2e</span>
+            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider block">Potential CO2 Cut</span>
+            <span className="font-extrabold text-emerald-700 text-sm">-{hotspot.potentialCo2Savings?.toLocaleString()} tCO₂e / yr</span>
           </div>
         </div>
 

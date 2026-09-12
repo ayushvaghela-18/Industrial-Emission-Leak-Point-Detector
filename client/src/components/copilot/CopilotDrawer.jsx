@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useFactory } from '../../context/FactoryContext';
 import { aiService } from '../../services/aiService';
 import { MOCK_AI_SUGGESTED_QUESTIONS } from '../../mock/mockData';
-import { Sparkles, X, Send, Bot, User, ShieldCheck, Loader2, RefreshCw } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, ShieldCheck, Loader2 } from 'lucide-react';
 
 export const CopilotDrawer = () => {
   const { copilotOpen, setCopilotOpen, activeFactory } = useFactory();

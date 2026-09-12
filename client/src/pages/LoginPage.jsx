@@ -41,8 +41,8 @@ export const LoginPage = () => {
             </div>
 
             <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>Hackathon Winner Edition</span>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Interactive Decision Platform</span>
             </div>
           </div>
         </div>

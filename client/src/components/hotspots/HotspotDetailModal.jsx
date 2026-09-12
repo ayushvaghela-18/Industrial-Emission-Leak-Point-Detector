@@ -1,10 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SeverityBadge } from '../common/Badge';
-import { Flame, X, CheckCircle2, TrendingDown, DollarSign, Lightbulb } from 'lucide-react';
-import { useFactory } from '../../context/FactoryContext';
+import { X, Lightbulb } from 'lucide-react';
 
 export const HotspotDetailModal = ({ hotspot, onClose }) => {
-  const { setActiveTab } = useFactory();
+  const navigate = useNavigate();
 
   if (!hotspot) return null;
 
@@ -29,7 +29,7 @@ export const HotspotDetailModal = ({ hotspot, onClose }) => {
         <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
           <div>
             <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">Annual Emission Mass</span>
-            <span className="text-2xl font-extrabold text-red-600 tracking-tight">{hotspot.annualEmissions?.toLocaleString()} tCO2e/yr</span>
+            <span className="text-2xl font-extrabold text-red-600 tracking-tight">{hotspot.annualEmissions?.toLocaleString()} tCO₂e / yr</span>
           </div>
 
           <div>
@@ -64,8 +64,8 @@ export const HotspotDetailModal = ({ hotspot, onClose }) => {
           <p className="text-xs font-semibold text-emerald-950">{hotspot.primaryIntervention}</p>
 
           <div className="pt-2 flex items-center justify-between text-xs text-emerald-800 border-t border-emerald-200/60">
-            <span>Potential Savings: <strong className="text-emerald-900">-${hotspot.potentialCo2Savings?.toLocaleString()} tCO2e/yr</strong></span>
-            <span>Est. Financial Return: <strong className="text-emerald-900">${hotspot.potentialCostSavings?.toLocaleString()}/yr</strong></span>
+            <span>Potential Savings: <strong className="text-emerald-900">-{hotspot.potentialCo2Savings?.toLocaleString()} tCO₂e / yr</strong></span>
+            <span>Est. Financial Return: <strong className="text-emerald-900">${hotspot.potentialCostSavings?.toLocaleString()} / yr</strong></span>
           </div>
         </div>
 
@@ -79,9 +79,9 @@ export const HotspotDetailModal = ({ hotspot, onClose }) => {
           <button
             onClick={() => {
               onClose();
-              setActiveTab('recommendations');
+              navigate('/recommendations');
             }}
-            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md transition-all"
+            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all"
           >
             View Full Circular Action Plan
           </button>

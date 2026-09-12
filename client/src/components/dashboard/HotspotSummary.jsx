@@ -34,33 +34,40 @@ export const HotspotSummary = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {activeFactory.hotspots.map((hotspot) => (
-            <div
-              key={hotspot.id}
-              onClick={() => setSelectedHotspot(hotspot)}
-              className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-100/80 transition-all hover:shadow-sm cursor-pointer group flex flex-col justify-between space-y-3"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <SeverityBadge severity={hotspot.severity} />
-                  <span className="text-xs font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
-                    {hotspot.contributionPct}% of total
-                  </span>
+        {activeFactory.hotspots.length === 0 ? (
+          <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            <p className="text-sm font-medium text-slate-600">No emission leak points currently flagged.</p>
+            <p className="text-xs text-slate-400 mt-1">Operational inputs reflect optimal thresholds or await next calculation run.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {activeFactory.hotspots.map((hotspot) => (
+              <div
+                key={hotspot.id}
+                onClick={() => setSelectedHotspot(hotspot)}
+                className="p-4 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-100/80 hover:border-slate-300 transition-all hover:shadow-sm cursor-pointer group flex flex-col justify-between space-y-3"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <SeverityBadge severity={hotspot.severity} />
+                    <span className="text-xs font-bold text-slate-700 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
+                      {hotspot.contributionPct}% of total
+                    </span>
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    {hotspot.title}
+                  </h4>
+                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{hotspot.rootCause}</p>
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                  {hotspot.title}
-                </h4>
-                <p className="text-xs text-slate-500 line-clamp-2">{hotspot.rootCause}</p>
-              </div>
 
-              <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs">
-                <span className="text-slate-500">Annual Output:</span>
-                <span className="font-bold text-red-600">{hotspot.annualEmissions.toLocaleString()} tCO2e/yr</span>
+                <div className="pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-xs">
+                  <span className="text-slate-500 font-medium">Annual Mass:</span>
+                  <span className="font-bold text-red-600">{hotspot.annualEmissions.toLocaleString()} tCO₂e / yr</span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
       </div>
 

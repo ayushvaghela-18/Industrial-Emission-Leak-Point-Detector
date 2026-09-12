@@ -1,40 +1,48 @@
 import React, { useState } from 'react';
 import { useFactory } from '../../context/FactoryContext';
-import { Building2, X, Plus } from 'lucide-react';
+import { Building2, X, Plus, Loader2 } from 'lucide-react';
 
 export const NewFactoryModal = ({ isOpen, onClose }) => {
   const { addFactory } = useFactory();
   const [name, setName] = useState('');
-  const [industry, setIndustry] = useState('Metal Processing');
+  const [industry, setIndustry] = useState('Metal Processing & Metallurgy');
   const [location, setLocation] = useState('Industrial Zone');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || isSubmitting) return;
 
-    addFactory({
-      name,
-      industry,
-      location,
-      size: 'SME Facility',
-      annualProduction: '25,000 Units',
-      operationalData: {
-        electricityKw: 8500000,
-        renewablePct: 15,
-        dieselLiters: 220000,
-        naturalGasM3: 310000,
-        rawMaterialQuantityTonnes: 45000,
-        recycledMaterialPct: 10,
-        wasteGeneratedTonnes: 5400,
-        wasteRecycledPct: 30,
-        transportDistanceKm: 95000
-      }
-    });
-
-    setName('');
-    onClose();
+    setIsSubmitting(true);
+    try {
+      await addFactory({
+        name: name.trim(),
+        industry,
+        location: location.trim() || 'Industrial Zone',
+        size: 'Enterprise Facility',
+        annualProduction: '25,000 Units',
+        operationalData: {
+          electricityKw: 8500000,
+          renewablePct: 15,
+          dieselLiters: 220000,
+          naturalGasM3: 310000,
+          coalTonnes: 500,
+          rawMaterialQuantityTonnes: 45000,
+          recycledMaterialPct: 10,
+          wasteGeneratedTonnes: 5400,
+          wasteRecycledPct: 30,
+          transportDistanceKm: 95000
+        }
+      });
+      setName('');
+      onClose();
+    } catch (err) {
+      console.error("Error creating factory:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const inputStyle = "w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none transition-all text-sm shadow-sm";
@@ -49,7 +57,7 @@ export const NewFactoryModal = ({ isOpen, onClose }) => {
             <Building2 className="w-5 h-5 text-slate-900" />
             <h3 className="text-sm font-bold tracking-tight text-slate-900">Register New Industrial Facility</h3>
           </div>
-          <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-700 rounded-lg transition-colors">
+          <button onClick={onClose} disabled={isSubmitting} className="p-1 text-slate-400 hover:text-slate-700 rounded-lg transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -60,7 +68,7 @@ export const NewFactoryModal = ({ isOpen, onClose }) => {
             <input
               type="text"
               required
-              placeholder="e.g. Titan Chemicals & Polymers"
+              placeholder="e.g. Apex Metallurgy Works"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className={inputStyle}
@@ -97,16 +105,27 @@ export const NewFactoryModal = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
+              disabled={isSubmitting}
               className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex items-center space-x-1.5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md transition-all"
+              disabled={isSubmitting || !name.trim()}
+              className="flex items-center space-x-1.5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
             >
-              <Plus className="w-4 h-4" />
-              <span>Create Facility Profile</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Registering...</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  <span>Create Facility Profile</span>
+                </>
+              )}
             </button>
           </div>
         </form>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFactory } from '../../context/FactoryContext';
-import { Zap, Flame, Factory as FactoryIcon, Trash2, Truck, Save, Loader2, RefreshCw } from 'lucide-react';
+import { Zap, Flame, Factory as FactoryIcon, Trash2, Truck, Save, Loader2 } from 'lucide-react';
 
 export const FactoryDataForm = () => {
   const { activeFactory, submitOperationalData, calculating } = useFactory();
@@ -53,72 +53,83 @@ export const FactoryDataForm = () => {
       {/* Header */}
       <div className="p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/50 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
         <div>
-          <h2 className="text-lg font-bold tracking-tight flex items-center gap-2 text-white">
+          <div className="flex items-center space-x-2">
             <FactoryIcon className="w-5 h-5 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-            Operational Telemetry Input
-          </h2>
-          <p className="text-xs text-slate-400 mt-1">Enter process parameters to calculate deterministic Scope 1, 2, and 3 emissions.</p>
+            <h2 className="text-lg font-bold tracking-tight text-white">Operational Telemetry Input</h2>
+          </div>
+          <p className="text-xs text-slate-400 mt-1">
+            Configure process parameters for <span className="font-semibold text-emerald-400">{activeFactory?.name || 'Selected Facility'}</span> ({activeFactory?.industry || 'Industrial'}).
+          </p>
         </div>
 
-        {successMsg && (
-          <div className="px-3.5 py-2 bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-semibold rounded-xl">
+        {successMsg ? (
+          <div className="px-3.5 py-2 bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-semibold rounded-xl animate-fade-in">
             {successMsg}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            <span>GHG Protocol Compliant Engine</span>
           </div>
         )}
       </div>
 
-      {/* Tabs */}
+      {/* Tabs with Scope classification */}
       <div className="flex border-b border-slate-200 bg-slate-50 px-4 pt-2 overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab('energy')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'energy'
-              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl shadow-sm'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Zap className="w-4 h-4 text-amber-500" />
           <span>1. Energy & Fuels</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200">Scope 1 & 2</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('materials')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'materials'
-              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl shadow-sm'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Flame className="w-4 h-4 text-emerald-600" />
-          <span>2. Raw Materials & Feedstock</span>
+          <span>2. Raw Materials</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">Scope 3</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('waste')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'waste'
-              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl shadow-sm'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Trash2 className="w-4 h-4 text-teal-600" />
           <span>3. Waste Streams</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 font-bold border border-teal-200">Scope 3</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('transport')}
-          className={`flex items-center space-x-2 px-5 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
+          className={`flex items-center space-x-2 px-4 py-3 text-xs font-semibold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'transport'
-              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl'
+              ? 'border-emerald-600 text-slate-900 bg-white rounded-t-xl shadow-sm'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
           <Truck className="w-4 h-4 text-blue-600" />
-          <span>4. Transport & Logistics</span>
+          <span>4. Logistics</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold border border-blue-200">Scope 3</span>
         </button>
       </div>
 
@@ -129,7 +140,10 @@ export const FactoryDataForm = () => {
         {activeTab === 'energy' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className={labelStyle}>Annual Electricity Consumption (kWh/yr)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Annual Electricity Draw</label>
+                <span className="text-[10px] text-slate-400 font-medium">kWh / yr</span>
+              </div>
               <input
                 type="number"
                 name="electricityKw"
@@ -137,11 +151,14 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
-              <span className="text-[11px] font-medium text-slate-500">Scope 2 indirect electricity grid draw</span>
+              <span className="text-[11px] font-medium text-slate-500">Scope 2 indirect electricity consumption from grid</span>
             </div>
 
             <div className="space-y-1">
-              <label className={labelStyle}>Renewable Power Mix Share (%)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Renewable Power Mix Share</label>
+                <span className="text-[10px] text-slate-400 font-medium">%</span>
+              </div>
               <input
                 type="number"
                 name="renewablePct"
@@ -151,11 +168,14 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
-              <span className="text-[11px] font-medium text-slate-500">Solar, wind, or green PPA percentage</span>
+              <span className="text-[11px] font-medium text-slate-500">On-site solar, wind, or verified green PPA ratio</span>
             </div>
 
             <div className="space-y-1">
-              <label className={labelStyle}>Annual Diesel Fuel Usage (Liters/yr)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Annual Diesel Fuel Usage</label>
+                <span className="text-[10px] text-slate-400 font-medium">Liters / yr</span>
+              </div>
               <input
                 type="number"
                 name="dieselLiters"
@@ -163,11 +183,29 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
-              <span className="text-[11px] font-medium text-slate-500">Scope 1 furnace & stationary combustion</span>
+              <span className="text-[11px] font-medium text-slate-500">Scope 1 furnace, backup generators & stationary combustion</span>
             </div>
 
             <div className="space-y-1">
-              <label className={labelStyle}>Natural Gas Consumption (m³/yr)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Coal Consumption</label>
+                <span className="text-[10px] text-slate-400 font-medium">Tonnes / yr</span>
+              </div>
+              <input
+                type="number"
+                name="coalTonnes"
+                value={formData.coalTonnes}
+                onChange={handleChange}
+                className={inputStyle}
+              />
+              <span className="text-[11px] font-medium text-slate-500">Scope 1 direct solid fuel boiler combustion</span>
+            </div>
+
+            <div className="space-y-1 md:col-span-2">
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Natural Gas Consumption</label>
+                <span className="text-[10px] text-slate-400 font-medium">m³ / yr</span>
+              </div>
               <input
                 type="number"
                 name="naturalGasM3"
@@ -175,7 +213,7 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
-              <span className="text-[11px] font-medium text-slate-500">Direct process boiler thermal combustion</span>
+              <span className="text-[11px] font-medium text-slate-500">Scope 1 thermal process heating & direct pipeline combustion</span>
             </div>
           </div>
         )}
@@ -190,12 +228,17 @@ export const FactoryDataForm = () => {
                 name="rawMaterialType"
                 value={formData.rawMaterialType}
                 onChange={handleChange}
+                placeholder="e.g. Steel, Cotton, Aluminum, Paper"
                 className={inputStyle}
               />
+              <span className="text-[11px] font-medium text-slate-500">Determines cradle-to-gate extraction emission coefficient</span>
             </div>
 
             <div className="space-y-1">
-              <label className={labelStyle}>Annual Material Input (Tonnes/yr)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Annual Material Input</label>
+                <span className="text-[10px] text-slate-400 font-medium">Tonnes / yr</span>
+              </div>
               <input
                 type="number"
                 name="rawMaterialQuantityTonnes"
@@ -203,10 +246,14 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
+              <span className="text-[11px] font-medium text-slate-500">Total raw feedstocks processed annually</span>
             </div>
 
             <div className="space-y-1 md:col-span-2">
-              <label className={labelStyle}>Secondary Recycled Feedstock Ratio (%)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Secondary Recycled Feedstock Ratio</label>
+                <span className="text-[10px] text-slate-400 font-medium">%</span>
+              </div>
               <input
                 type="number"
                 name="recycledMaterialPct"
@@ -216,7 +263,7 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
-              <span className="text-[11px] font-medium text-slate-500">Higher recycled content slashes upstream Scope 3 extraction footprint</span>
+              <span className="text-[11px] font-medium text-slate-500">Higher circular recycled content slashes upstream Scope 3 extraction footprint</span>
             </div>
           </div>
         )}
@@ -225,7 +272,10 @@ export const FactoryDataForm = () => {
         {activeTab === 'waste' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
-              <label className={labelStyle}>Total Annual Process Waste (Tonnes/yr)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Total Annual Process Waste</label>
+                <span className="text-[10px] text-slate-400 font-medium">Tonnes / yr</span>
+              </div>
               <input
                 type="number"
                 name="wasteGeneratedTonnes"
@@ -233,10 +283,14 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
+              <span className="text-[11px] font-medium text-slate-500">Scope 3 end-of-life byproduct & scrap generation</span>
             </div>
 
             <div className="space-y-1">
-              <label className={labelStyle}>Waste Recycling / Diversion Rate (%)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Waste Recycling / Diversion Rate</label>
+                <span className="text-[10px] text-slate-400 font-medium">%</span>
+              </div>
               <input
                 type="number"
                 name="wasteRecycledPct"
@@ -246,6 +300,7 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
+              <span className="text-[11px] font-medium text-slate-500">Share diverted from municipal or industrial landfill</span>
             </div>
           </div>
         )}
@@ -254,7 +309,10 @@ export const FactoryDataForm = () => {
         {activeTab === 'transport' && (
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className={labelStyle}>Total Logistics Haul Distance (km/yr)</label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyle}>Total Logistics Haul Distance</label>
+                <span className="text-[10px] text-slate-400 font-medium">km / yr</span>
+              </div>
               <input
                 type="number"
                 name="transportDistanceKm"
@@ -262,7 +320,7 @@ export const FactoryDataForm = () => {
                 onChange={handleChange}
                 className={inputStyle}
               />
-              <span className="text-[11px] font-medium text-slate-500">Freight hauling distance for raw materials & finished product distribution</span>
+              <span className="text-[11px] font-medium text-slate-500">Scope 3 Category 4 & 9 freight hauling distance for materials & distribution</span>
             </div>
           </div>
         )}
