@@ -337,3 +337,77 @@ function buildWhyExplanation({ targetHotspotName, hotspotPercentage, estimatedCO
     1
   )}% of total emissions). Implementing this circular intervention is estimated to eliminate ${estimatedCO2Reduction} tCO2e/year with an annual financial saving of ₹${estimatedAnnualSaving.toLocaleString('en-IN')} and a payback period of ~${paybackPeriod} years.`;
 }
+
+/**
+ * Hybrid Recommendation Generator:
+ * Combines deterministic emission & financial calculations with ML-predicted
+ * circular intervention category suitability.
+ * 
+ * @param {Object} analysisData - Factory emission analysis and operational profile
+ * @param {Object} options - Options { useML: boolean }
+ * @returns {Promise<{ recommendations: Array, mlInsights: Object }>}
+ */
+export async function generateRankedRecommendations(analysisData = {}, options = {}) {
+  // 1. Generate authoritative deterministic recommendations
+  const deterministicRecs = generateRecommendations(analysisData);
+
+  const useML = options.useML !== false;
+  if (!useML) {
+    return {
+      recommendations: deterministicRecs,
+      mlInsights: {
+        available: false,
+        status: 'DISABLED',
+        confidence: 'none',
+        message: 'ML ranking disabled by caller.',
+      },
+    };
+  }
+
+  // 2. Query Python ML service
+  let mlResult;
+  try {
+    const { getMLPredictions } = await import('../ml/mlServiceClient.js');
+    mlResult = await getMLPredictions(analysisData);
+  } catch (err) {
+    mlResult = {
+      available: false,
+      status: 'UNAVAILABLE',
+      confidence: 'low',
+      message: `Failed to invoke ML service: ${err.message}`,
+    };
+  }
+
+  // 3. If ML service is unavailable or confidence is low, return deterministic order
+  if (!mlResult.available || mlResult.status === 'LOW_CONFIDENCE' || mlResult.confidence === 'low') {
+    return {
+      recommendations: deterministicRecs,
+      mlInsights: mlResult,
+    };
+  }
+
+  // 4. Boost recommendations belonging to ML-predicted top circular categories
+  const categoryWeights = mlResult.allProbabilities || {};
+  const rankedRecs = deterministicRecs.map((item) => {
+    const mlProb = categoryWeights[item.category] || 0.0;
+    // Calibrated boost: adds up to 25 points to deterministic score
+    const mlBoost = Number((mlProb * 25.0).toFixed(1));
+    const combinedScore = Number((item.score + mlBoost).toFixed(1));
+
+    return {
+      ...item,
+      mlCategoryProbability: mlProb,
+      mlScoreBoost: mlBoost,
+      score: combinedScore,
+    };
+  });
+
+  // Re-sort descending by combined score
+  rankedRecs.sort((a, b) => b.score - a.score);
+
+  return {
+    recommendations: rankedRecs,
+    mlInsights: mlResult,
+  };
+}
+

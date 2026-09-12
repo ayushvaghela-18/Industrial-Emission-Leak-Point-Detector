@@ -7,9 +7,13 @@ import { Router } from 'express';
 import {
   generateRecommendationsHandler,
   getRecommendationsByFactoryHandler,
+  getMLStatusHandler,
 } from '../services/recommendations/recommendationController.js';
 
 const router = Router();
+
+// GET /api/recommendations/ml-status
+router.get('/ml-status', getMLStatusHandler);
 
 // POST /api/recommendations/generate
 router.post('/generate', generateRecommendationsHandler);

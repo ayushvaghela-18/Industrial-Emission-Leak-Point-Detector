@@ -5,8 +5,9 @@
  * Primary Ownership: Member 3 (Circular Recommendation & AI Copilot)
  */
 
-import { generateRecommendations, normalizeAnalysisInput } from './recommendationEngine.js';
+import { generateRecommendations, generateRankedRecommendations, normalizeAnalysisInput } from './recommendationEngine.js';
 import { EmissionAnalysisRepository, FactoryRepository } from '../../utils/repository.js';
+import { checkMLServiceHealth, getMLServiceMetrics } from '../ml/mlServiceClient.js';
 
 // In-memory cache for fast lookup during hackathon prototype execution
 const recommendationCache = new Map();
@@ -43,7 +44,7 @@ export async function generateRecommendationsHandler(req, res) {
       }
     }
 
-    const recommendations = generateRecommendations(analysisData);
+    const { recommendations, mlInsights } = await generateRankedRecommendations(analysisData);
     const finalFactoryId = targetFactoryId || 'default_factory';
 
     // Store in-memory cache
@@ -51,6 +52,7 @@ export async function generateRecommendationsHandler(req, res) {
       factoryId: finalFactoryId,
       generatedAt: new Date().toISOString(),
       recommendations,
+      mlInsights,
     });
 
     return res.status(200).json({
@@ -58,6 +60,7 @@ export async function generateRecommendationsHandler(req, res) {
       factoryId: finalFactoryId,
       count: recommendations.length,
       recommendations,
+      mlInsights,
     });
   } catch (error) {
     console.error('Error generating recommendations:', error);
@@ -65,6 +68,31 @@ export async function generateRecommendationsHandler(req, res) {
       success: false,
       message: 'Failed to generate circular recommendations',
       error: error.message,
+    });
+  }
+}
+
+/**
+ * GET /api/recommendations/ml-status
+ * Health & evaluation metrics of the integrated Python ML Service.
+ */
+export async function getMLStatusHandler(req, res) {
+  try {
+    const health = await checkMLServiceHealth();
+    const metricsResult = await getMLServiceMetrics();
+
+    return res.status(200).json({
+      success: true,
+      service: 'Python FastAPI ML Recommendation Service',
+      health,
+      metrics: metricsResult.success ? metricsResult.metrics : null,
+    });
+  } catch (err) {
+    return res.status(200).json({
+      success: false,
+      service: 'Python FastAPI ML Recommendation Service',
+      health: { available: false, error: err.message },
+      metrics: null,
     });
   }
 }
