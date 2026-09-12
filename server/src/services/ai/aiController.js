@@ -18,8 +18,19 @@ export async function aiChatHandler(req, res) {
     const rawBody = req.body || {};
     const payload = rawBody.data || rawBody;
 
+    const userQuestion = (
+      payload.userQuestion ||
+      payload.question ||
+      payload.message ||
+      payload.query ||
+      payload.prompt ||
+      rawBody.userQuestion ||
+      rawBody.question ||
+      rawBody.message ||
+      ''
+    ).trim();
+
     const {
-      userQuestion,
       factoryId,
       factoryContext = {},
       analysisContext = {},

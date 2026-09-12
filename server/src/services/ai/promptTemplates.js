@@ -5,31 +5,25 @@
  * Primary Ownership: Member 3 (Circular Recommendation & AI Copilot)
  */
 
-export const SYSTEM_PROMPT = `You are the EcoForge AI Sustainability Copilot, an expert industrial sustainability advisor built for EcoForge AI (Industrial Emission Leak-Point Detector & Circular Alternative Recommender).
+export const SYSTEM_PROMPT = `You are the EcoForge AI Sustainability Copilot, a data-grounded industrial sustainability advisor for manufacturing plants.
 
-Your mission is to help factory operators, sustainability managers, and regulators understand emission leak points, circular economy interventions, financial payback, and carbon reduction tradeoffs.
+MISSION:
+Answer the user's specific question using ONLY the provided Authoritative Backend Context. Help operators and evaluators understand emission leak points, circular interventions, financial payback, and simulation scenarios.
 
-STRICT GROUNDING RULES:
-1. NEVER invent, calculate, or fabricate numerical figures.
-2. The numerical data provided in the application context (total emissions, hotspot percentages, CO2 reductions, cost savings, payback periods, simulation results) is AUTHORITATIVE. Use it directly.
-3. If specific requested information is missing from the provided context, state clearly: "That specific metric is not available in the current analysis data."
-4. Always explain WHY a specific intervention is recommended based on the factory's largest emission sources ("emission leak points").
-5. Clearly distinguish calculated facts from estimated projections.
-6. Do NOT pretend to be an official government auditor or certified ISO auditor. Present yourself as a data-grounded decision-support copilot.
-7. Be concise, structured, professional, and actionable.
-
-RESPONSE FORMAT GUIDELINES:
-- Provide a direct, structured answer using clean markdown.
-- Include sections like:
-  - **Summary / Key Insight**
-  - **Data Evidence** (quoting exact tCO2e and % values from context)
-  - **Recommended Action** (referencing specific catalog recommendations)
-  - **Financial & Payback Impact** (quoting estimated annual savings in ₹ and payback period in years)
-  - **Tradeoffs & Next Steps** (explaining feasibility or implementation considerations)
-`;
+CRITICAL RULES:
+1. GROUNDING: Never invent, calculate, extrapolate, or fabricate any numbers. All emission values, percentages, savings, payback periods, and simulation projections must come directly from the supplied backend context.
+2. DIRECT RELEVANCE: Address the user's specific question directly. Do not provide a generic overview when a specific metric or question is requested.
+3. FORMATTING RESTRICTIONS:
+   - Output clean, natural text organized into 2 to 3 short paragraphs.
+   - DO NOT use Markdown headings (#, ##, ###).
+   - DO NOT use horizontal rules (---).
+   - DO NOT output raw JSON or code blocks.
+   - DO NOT start with generic canned phrases like "Based on the provided data", "According to the context", "Sure!", or "Certainly!".
+   - Bullet points are allowed ONLY when listing multiple distinct options or steps, and should be kept minimal.
+4. MISSING INFORMATION: If a requested metric is not in the supplied context, state that the metric is not available in the current records rather than guessing.`;
 
 /**
- * Formats factory analysis, hotspot metrics, and circular recommendations into a clear structured context block for the LLM.
+ * Formats factory analysis, hotspot metrics, and circular recommendations into a clear structured context block for Ollama.
  */
 export function buildGroundingContext({
   factoryProfile = {},
@@ -40,69 +34,59 @@ export function buildGroundingContext({
   recommendations = [],
   simulationResults = null,
 }) {
-  const factoryInfo = `
-FACTORY PROFILE:
+  const factoryInfo = `FACTORY PROFILE:
 - Name: ${factoryProfile.name || 'Industrial Facility'}
 - Industry: ${factoryProfile.industry || factoryProfile.industryType || 'General Manufacturing'}
-- Location: ${factoryProfile.location || 'N/A'}
-- Production Capacity: ${factoryProfile.annualProductionTons ? `${factoryProfile.annualProductionTons} tons/year` : 'N/A'}
-`;
+- Location: ${factoryProfile.location || 'Industrial Zone'}
+- Operational Size: ${factoryProfile.size || 'Standard Production Facility'}`;
 
-  const emissionsInfo = `
-EMISSIONS SUMMARY:
+  const emissionsInfo = `EMISSIONS BREAKDOWN & LEAK POINTS:
 - Total Annual Emissions: ${totalEmissionsTons} tCO2e/year
 - Category Breakdown:
 ${Object.entries(categoryBreakdown)
   .map(([cat, val]) => `  * ${cat}: ${val} tCO2e`)
-  .join('\n') || '  * No category breakdown provided'}
+  .join('\n') || '  * No category breakdown recorded'}
 
-TOP EMISSION HOTSPOTS (LEAK POINTS):
+- Top Emission Hotspots (Leak Points):
 ${topHotspots
   .map(
     (h, idx) =>
-      `  ${idx + 1}. ${h.name || h.source || h.key} — ${h.emissionsTons ?? h.emissionsTonsCO2e} tCO2e (${h.percentage}% of total emissions) [Severity: ${h.severity || h.priority || 'High'}]`
+      `  ${idx + 1}. ${h.name || h.source || h.key} — ${h.emissionsTons ?? h.emissionsTonsCO2e ?? 0} tCO2e/year (${h.percentage}% of total footprint) [Severity: ${h.severity || 'High'}]`
   )
-  .join('\n') || '  * No hotspots identified'}
-`;
+  .join('\n') || '  * No hotspots identified'}`;
 
-  const recsInfo = `
-RECOMMENDED CIRCULAR INTERVENTIONS:
+  const recsInfo = `RECOMMENDED CIRCULAR INTERVENTIONS:
 ${recommendations
   .slice(0, 5)
   .map(
-    (r, idx) => `
-${idx + 1}. [${r.priority}] ${r.title} (${r.category})
-   - Target Hotspot: ${r.targetHotspot}
-   - Estimated CO2 Reduction: ${r.estimatedCO2Reduction} tCO2e/year (${r.reductionPercentage}% hotspot reduction)
-   - Estimated Annual Financial Saving: ₹${Number(r.estimatedAnnualSaving).toLocaleString('en-IN')}
-   - Estimated Implementation Cost: ₹${Number(r.estimatedImplementationCost).toLocaleString('en-IN')}
-   - Payback Period: ~${r.paybackPeriod} years
-   - Feasibility: ${r.feasibility} | Difficulty: ${r.difficulty}
-   - Reason: ${r.whyRecommended}
-`
+    (r, idx) => `  ${idx + 1}. ${r.title} (${r.category})
+     - Target Hotspot: ${r.targetHotspot}
+     - Estimated CO2 Reduction: ${r.estimatedCO2Reduction ?? r.co2ReductionTonnes ?? 0} tCO2e/year (${r.reductionPercentage ?? r.co2ReductionPct ?? 0}% cut)
+     - Estimated Annual Financial Savings: $${Number(r.estimatedAnnualSaving ?? r.annualSavingsUSD ?? 0).toLocaleString()} / year
+     - Estimated Implementation Cost: $${Number(r.estimatedImplementationCost ?? r.implementationCostUSD ?? 0).toLocaleString()}
+     - Estimated Payback Period: ~${r.paybackPeriod ?? r.paybackPeriodYears ?? 'N/A'} years
+     - Feasibility: ${r.feasibility || 'High'} | Difficulty: ${r.difficulty || 'Moderate'}
+     - Rationale: ${r.whyRecommended || 'Targets primary emission source'}`
   )
-  .join('\n') || '  * No active recommendations generated'}
-`;
+  .join('\n\n') || '  * No recommendations available'}`;
 
   let simInfo = '';
   if (simulationResults) {
-    // Adapt to Member 2's SimulationService structure
     const baselineTons = simulationResults.baseline?.totalEmissionsTonsCO2e ?? simulationResults.originalEmissionsTons ?? totalEmissionsTons;
     const projectedTons = simulationResults.projected?.totalEmissionsTonsCO2e ?? simulationResults.simulatedEmissionsTons ?? 0;
-    const co2Reduction = simulationResults.impact?.co2ReductionTons ?? simulationResults.netCO2ChangeTons ?? (baselineTons - projectedTons);
+    const co2Reduction = simulationResults.impact?.co2ReductionTons ?? simulationResults.netCO2ChangeTons ?? Math.max(0, baselineTons - projectedTons);
     const pctChange = simulationResults.impact?.percentageReduction ?? simulationResults.percentageChange ?? 0;
     const savings = simulationResults.impact?.estimatedAnnualSavingsUSD ?? simulationResults.netFinancialSavingINR ?? 0;
     const changes = simulationResults.simulationApplied || simulationResults.adjustments || {};
 
-    simInfo = `
-WHAT-IF SIMULATION RESULTS:
-- Baseline Emissions: ${baselineTons} tCO2e
-- Simulated Emissions: ${projectedTons} tCO2e
-- Net CO2 Reduction: ${co2Reduction} tCO2e (${pctChange}%)
-- Estimated Financial Savings: ₹/USD ${Number(savings).toLocaleString('en-IN')}
-- Key Parameter Adjustments: ${JSON.stringify(changes)}
-`;
+    simInfo = `\nWHAT-IF SIMULATION RESULTS:
+- Baseline Footprint: ${baselineTons} tCO2e/year
+- Simulated Footprint: ${projectedTons} tCO2e/year
+- CO2 Reduction Achieved: ${co2Reduction} tCO2e/year (${pctChange}% reduction)
+- Projected Annual Financial Savings: $${Number(savings).toLocaleString()} / year
+- Parameter Adjustments: ${JSON.stringify(changes)}`;
   }
 
-  return `${factoryInfo}\n${emissionsInfo}\n${recsInfo}\n${simInfo}`;
+  return `${factoryInfo}\n\n${emissionsInfo}\n\n${recsInfo}${simInfo}`;
 }
+
