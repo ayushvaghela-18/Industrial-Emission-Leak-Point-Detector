@@ -41,6 +41,7 @@ export const CopilotDrawer = () => {
 
     try {
       const contextData = {
+        factoryId: activeFactory?.id || activeFactory?._id,
         factoryName: activeFactory?.name,
         totalEmissions: activeFactory?.metrics?.totalEmissionsTonnes,
         topHotspot: activeFactory?.hotspots?.[0]?.title

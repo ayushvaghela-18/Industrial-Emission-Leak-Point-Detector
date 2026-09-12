@@ -1,25 +1,32 @@
 import { api } from './api';
-import { mockApi } from '../mock/mockApi';
+import { formatProcessData } from './factoryService';
 
 export const emissionService = {
   async calculateEmissions(factoryId, operationalData) {
-    return api.fetchWithFallback(`/emissions/calculate`, {
-      method: 'POST',
-      body: JSON.stringify({ factoryId, ...operationalData })
-    }, () => mockApi.calculateEmissions(factoryId, operationalData));
+    const processData = formatProcessData(operationalData);
+    return api.post('/emissions/analyze', {
+      factoryId,
+      processData,
+    });
+  },
+
+  async getEmissionsByFactory(factoryId) {
+    return api.get(`/emissions/${factoryId}`);
   },
 
   async getBreakdown(factoryId) {
-    return api.fetchWithFallback(`/emissions/breakdown/${factoryId}`, { method: 'GET' }, async () => {
-      const fac = await mockApi.getFactoryById(factoryId);
-      return { success: true, data: fac.data.breakdown };
-    });
+    const res = await api.get(`/emissions/${factoryId}`);
+    if (res.success && res.data?.latestAnalysis) {
+      return { success: true, data: res.data.latestAnalysis.categories || [] };
+    }
+    return res;
   },
 
   async getHotspots(factoryId) {
-    return api.fetchWithFallback(`/emissions/hotspots/${factoryId}`, { method: 'GET' }, async () => {
-      const fac = await mockApi.getFactoryById(factoryId);
-      return { success: true, data: fac.data.hotspots };
-    });
+    const res = await api.get(`/emissions/${factoryId}`);
+    if (res.success && res.data?.latestAnalysis) {
+      return { success: true, data: res.data.latestAnalysis.hotspots || [] };
+    }
+    return res;
   }
 };
